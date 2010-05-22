@@ -321,9 +321,9 @@ Function ceil_log2_S (n: nat) {wf lt n}: nat :=
   | S _ => S (ceil_log2_S (div2 n))
   end.
 Proof.
-    intros.
-    apply lt_div2; auto with arith.
   apply lt_wf.
+  intros.
+  apply lt_div2; auto with arith.
 Defined.
 
 Lemma ceil_log2_S_def n: ceil_log2_S n =
@@ -345,10 +345,10 @@ Function floor_log2_S (n: nat) {wf lt n}: nat :=
   | S n' => S (floor_log2_S (div2 n'))
   end.
 Proof.
-    intros.
-    apply le_lt_trans with n'; auto with arith.
-    apply le_div2.
   apply lt_wf.
+  intros.
+  apply le_lt_trans with n'; auto with arith.
+  apply le_div2.
 Defined.
 
 Lemma pow2_ceil_log2: forall n, S n <= pow 2 (ceil_log2_S n).
