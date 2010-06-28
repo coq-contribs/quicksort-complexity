@@ -5,6 +5,7 @@ Require Import Bool.
 Require Import Lt.
 Require Import Recdef.
 Require Import List.
+Require Import Permutation.
 Require Import Ring.
 Require Import Plus.
 Require Import Mult.
@@ -53,7 +54,7 @@ Section plain.
     destruct (le x a)...
   Qed.
 
-  Instance insert_perm_mor: Morphism (eq ==> Permutation ==> Permutation) insert.
+  Instance insert_perm_mor: Proper (eq ==> Permutation ==> Permutation) insert.
   Proof with eauto.
     repeat intro.
     induction H0; subst; simpl...

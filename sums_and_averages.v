@@ -2,7 +2,7 @@
 Set Implicit Arguments.
 
 Require Import
-  Plus List Arith Relations RelationClasses Morphisms
+  Plus List Permutation Arith Relations RelationClasses Morphisms
   arith_lems util list_utils nat_seqs.
 
 (* sum *)
@@ -46,7 +46,7 @@ Proof with auto.
   rewrite IHl...
 Qed.
 
-Instance Rsum_Permutation: Morphism (Permutation ==> eq) Rsum.
+Instance Rsum_Permutation: Proper (Permutation ==> eq) Rsum.
 Proof with auto.
   intros x y p.
   induction p...
@@ -143,7 +143,7 @@ Proof with auto with real.
   reflexivity.
 Qed.
 
-Instance elemsR_le_Rsum: Morphism (elemsR Rle ==> Rle) Rsum.
+Instance elemsR_le_Rsum: Proper (elemsR Rle ==> Rle) Rsum.
 Proof with auto with real.
   repeat intro.
   induction H...
@@ -360,7 +360,7 @@ Proof with auto with real.
   rewrite Rinv_l...
 Qed.
 
-Instance Ravg_Permutation: Morphism (Permutation ==> eq) Ravg.
+Instance Ravg_Permutation: Proper (Permutation ==> eq) Ravg.
 Proof.
   repeat intro.
   unfold Ravg.
@@ -659,7 +659,7 @@ Proof with auto.
   discriminate.
 Qed.
 
-Instance elemsR_le_Ravg: Morphism (elemsR Rle ==> Rle) Ravg.
+Instance elemsR_le_Ravg: Proper (elemsR Rle ==> Rle) Ravg.
 Proof with auto with real.
   repeat intro.
   unfold Ravg.

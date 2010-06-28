@@ -23,7 +23,7 @@ Section contents.
 
   Lemma SkipList_incl (y x: list T): SkipList x y -> incl x y.
   Proof with auto.
-    induction y.
+    induction y in x |- *.
       intros.
       inversion_clear H.
       apply incl_refl.
@@ -52,7 +52,6 @@ Section contents.
 
   Lemma SkipList_trans (y x: list T): SkipList x y -> forall z, SkipList y z -> SkipList x z.
   Proof with auto.
-    intro.
     cut (forall (z y: list T), SkipList y z -> forall x, SkipList x y -> SkipList x z).
       intros.
       apply H with y...
@@ -83,7 +82,6 @@ Hint Resolve SkipList_refl.
 
 Lemma SkipList_map (A: Set) (x y: list A): SkipList x y -> forall (B: Set) (f: A -> B), SkipList (map f x) (map f y).
 Proof.
-  intros A x y.
   generalize y x. clear y x.
   induction y; intros; inversion_clear H; simpl; auto.
 Qed.

@@ -97,7 +97,6 @@ Qed.
 
 Lemma Ecmp_refl x: Ecmp e x x = Eq.
 Proof with auto.
-  intro x.
   assert (Ecmp e x x = CompOpp (Ecmp e x x)).
     apply Ecmp_sym.
   destruct (Ecmp e x x); try discriminate...
@@ -106,7 +105,6 @@ Qed.
 Lemma Ele_le_dec x y: { Ele x y } + { Ele y x }.
 Proof.
   unfold Ele.
-  intros.
   rewrite Ecmp_sym.
   destruct (Ecmp e y x); [left | right | left]; intro; discriminate.
 Qed.

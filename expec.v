@@ -58,13 +58,13 @@ Add Parametric Morphism (A: Set): (@expec A)
 Proof. intros. unfold expec. rewrite H. reflexivity. Qed.
 
 Lemma expec_ext (T: Set) (f g: T -> nat) (e: ext_eq f g): forall x, expec f x = expec g x.
-Proof. intros T f g e. fold (ext_eq (expec f) (expec g)). apply expec_ext_morph. assumption. Qed.
+Proof. fold (ext_eq (expec f) (expec g)). apply expec_ext_morph. assumption. Qed.
 
 Lemma lin_nat c d: ext_eq
   (TRavg ∘ ne_tree.map (INR ∘ plus d ∘ mult c))
   (Rplus (INR d) ∘ Rmult (INR c) ∘ TRavg ∘ ne_tree.map INR).
 Proof.
-  do 3 intro.
+  intro.
   induction x.
       repeat rewrite comp_apply.
       simpl.

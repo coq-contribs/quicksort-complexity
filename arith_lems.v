@@ -83,7 +83,6 @@ Qed.
 
 Lemma le_exists_plus (x y: nat) (p: x <= y): exists d, y = x + d.
 Proof with auto.
-  intros x y p.
   induction p.
     exists 0...
   destruct IHp.
@@ -93,8 +92,7 @@ Qed.
 
 Lemma lt_exists_plus (x y: nat) (p: x < y): exists d, y = S (x + d).
 Proof.
-  unfold lt.
-  intros.
+  unfold lt in p.
   destruct (le_exists_plus p).
   exists x0.
   assumption.
@@ -127,6 +125,7 @@ Qed.
 
 Lemma minus_eq_inv_r d x y: (x <= d -> y <= d -> (d - x = d - y) -> x = y)%nat.
 Proof with auto with arith.
+  revert x y.
   induction d.
     simpl.
     intros.
@@ -204,7 +203,6 @@ Functional Scheme div2_ind := Induction for div2 Sort Prop.
 
 Lemma div2S_le_Sdiv2 x: div2 (S x) <= S (div2 x).
 Proof with auto with arith.
-  intro x.
   functional induction (div2 x)...
   simpl.
   destruct n'...
@@ -215,7 +213,7 @@ Proof. induction x; auto with arith. Qed.
 
 Lemma div2_preserves_le x y: x <= y -> div2 x <= div2 y.
 Proof with auto with arith.
-  intro x.
+  revert y.
   functional induction (div2 x)...
   intros.
   destruct y.
@@ -239,7 +237,7 @@ Qed.
 
 Lemma div2_x_plus_2y a b: div2 (a + 2 * b) = div2 a + b.
 Proof with auto with arith.
-  intro a.
+  revert b.
   functional induction (div2 a); intros.
       apply div2_double.
     destruct b...
@@ -261,11 +259,11 @@ Proof with auto with arith.
 Qed.
 
 Lemma le_div2 n: div2 n <= n.
-Proof. intro. pattern n, (div2 n). apply div2_ind; auto with arith. Qed.
+Proof. pattern n, (div2 n). apply div2_ind; auto with arith. Qed.
 
 Lemma div2_lt_inv x y: div2 x < div2 y -> x <= y.
 Proof with auto with arith.
-  intro x.
+  revert y.
   functional induction (div2 x); intros...
     destruct y...
   destruct y. inversion H.
@@ -275,7 +273,7 @@ Qed.
 
 Lemma div2_le_div2_inv x y: div2 x <= div2 y -> x <= S y.
 Proof with auto with arith.
-  intro x.
+  revert y.
   functional induction (div2 x); intros...
   destruct y. inversion H.
   destruct y. inversion H.
@@ -306,7 +304,7 @@ Proof. auto. Qed.
 
 Lemma pow_min x: x <> 0%nat -> forall y, 0 < pow x y.
 Proof with auto with arith.
-  intros x H.
+  intros H.
   induction y...
   simpl.
   apply lt_0_mult...
@@ -331,7 +329,7 @@ Lemma ceil_log2_S_def n: ceil_log2_S n =
   | 0 => 0
   | S _ => S (ceil_log2_S (div2 n))
   end.
-Proof. intro. functional induction (ceil_log2_S n); auto. Qed.
+Proof. functional induction (ceil_log2_S n); auto. Qed.
 
 Definition log2ceil (n: nat): nat :=
   match n with
@@ -394,7 +392,7 @@ Qed.
 
 Lemma log2ceil_S_preserves_le x y: x <= y -> ceil_log2_S x <= ceil_log2_S y.
 Proof with auto with arith.
-  intro x.
+  revert y.
   functional induction (ceil_log2_S x)...
   intros.
   destruct y.
@@ -421,7 +419,7 @@ Qed.
 (* INR comparisons *)
 
 Lemma INR_S_ne_0 n: INR (S n) <> 0%R.
-Proof. intro. apply not_O_INR. discriminate. Qed.
+Proof. apply not_O_INR. discriminate. Qed.
 
 Hint Resolve INR_S_ne_0.
 
