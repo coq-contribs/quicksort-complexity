@@ -41,7 +41,6 @@ Section contents.
   Proof with auto.
     unfold pick.
     simpl.
-    intros l r.
     rewrite ne_list.map_map.
     intros.
     inversion_clear H.

@@ -45,7 +45,6 @@ Section contents.
     = ne_tree.map (length ∘ fst) (U.qs l).
   Proof with auto.
     unfold NDP.qs, U.qs.
-    intro.
     pattern l, (qs (@U.cmp ee ol) U.pick l).
     apply qs_parts.rect...
       apply U.Mext.

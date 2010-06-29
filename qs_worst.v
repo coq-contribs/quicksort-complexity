@@ -23,7 +23,7 @@ Definition counted_cmp (x y: T): SimplyProfiled bool := (1, cmp x y). (* lift *)
 Lemma filter_cost (p: T -> SimplyProfiled bool):
   (forall t, cost (p t) = 1) -> forall (l: list T), cost (filter _ p l) = length l.
 Proof with auto with arith.
-  intros p pd.
+  intros pd.
   induction l...
   simpl.
   destruct (filter SimplyProfiled p l)...
@@ -88,12 +88,12 @@ Definition qs_body (l: list T) (qs0: {l': list T | length l' < length l} -> Simp
   | pivot :: t => fun Heq_l =>
       lower <-
         x <- filter SimplyProfiled (gt SimplyProfiled counted_cmp pivot) t;
-        qs0 (exist _ (proj1_sig x) (qs_obligation_1 SimplyProfiled qs0 Heq_l x));
+        qs0 (exist _ (proj1_sig x) (qs_obligation_1 SimplyProfiled (fun l H => qs0 (exist _ l H)) Heq_l x));
       upper <-
         x <- filter SimplyProfiled (counted_cmp pivot) t;
-        qs0 (exist _ (proj1_sig x) (qs_obligation_2 SimplyProfiled qs0 Heq_l lower x));
+        qs0 (exist _ (proj1_sig x) (qs_obligation_2 SimplyProfiled (fun l H => qs0 (exist _ l H)) Heq_l lower x));
       ret (m:=SimplyProfiled) (lower ++ pivot :: upper)
-  end (refl_equal l).
+  end refl_equal.
 
 Theorem qs_quadratic (l: list T): cost (qs counted_cmp l) <= sqrd (length l).
 Proof with auto with arith.

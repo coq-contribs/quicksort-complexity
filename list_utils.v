@@ -770,9 +770,9 @@ Section two_lists_rect.
 
 End two_lists_rect.
 
-Instance Reflexive_Permutation T: Reflexive Permutation := @Permutation_refl T.
-Instance Reflexive_Symmetric T: Symmetric Permutation := @Permutation_sym T.
-Instance Reflexive_Transitive T: Transitive Permutation := @perm_trans T.
+Instance Reflexive_Permutation T: Reflexive (@Permutation T) := @Permutation_refl T.
+Instance Reflexive_Symmetric T: Symmetric (@Permutation T) := @Permutation_sym T.
+Instance Reflexive_Transitive T: Transitive (@Permutation T) := @perm_trans T.
 
 Instance app_Permutation_mor T: Proper (Permutation ==> Permutation ==> Permutation) (@app T).
 Proof. repeat intro. apply Permutation_app; assumption. Qed.

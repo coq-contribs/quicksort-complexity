@@ -70,24 +70,24 @@ Section contents.
   Qed.
 
   Lemma IndexSeq_nil b: IndexSeq b nil.
-  Proof. do 4 intro. elimtype False. apply (lt_irrefl i). simpl in H0. omega. Qed.
+  Proof. do 3 intro. elimtype False. apply (lt_irrefl i). simpl in H0. omega. Qed.
 
   Hint Resolve IndexSeq_nil.
 
-  Lemma IndexSeq_perm: forall (b: nat) (l: list Index), IndexSeq b l -> forall l', Permutation l' l -> IndexSeq b l'.
+  Lemma IndexSeq_perm: forall (b: nat) (l: list Index), IndexSeq b l -> forall l', Permutation.Permutation l' l -> IndexSeq b l'.
   Proof with auto.
     unfold IndexSeq.
     intros.
-    rewrite (Permutation_length H0) in H2.
+    rewrite (Permutation.Permutation_length H0) in H2.
     unfold IndexIn.
     apply incl_In with (map (nb_val (n:=length ol)) l)...
       apply H...
     apply Permutation_incl.
-    apply Permutation_sym...
+    apply Permutation.Permutation_sym...
   Qed.
 
   Definition IndexSeq_uncons l b:
-    IndexSeq b l -> l <> nil -> exists l', exists p: Index, nb_val p = b /\ Permutation (p :: l') l.
+    IndexSeq b l -> l <> nil -> exists l', exists p: Index, nb_val p = b /\ Permutation.Permutation (p :: l') l.
   Proof with auto.
     destruct l; intros.
       intros.
@@ -105,7 +105,7 @@ Section contents.
 
   Lemma IndexSeq_cons_inv (b: Index) (l: list Index): IndexSeq b (b :: l) -> IndexSeq (S b) l.
   Proof with auto.
-    do 6 intro.
+    do 4 intro.
     assert (b <= i) by omega.
     assert (i < b + S (length l)). omega.
     cset (H i H2 H3).
@@ -150,8 +150,8 @@ Section contents.
     unfold IndexSeq.
     intros.
     unfold IndexIn.
-    apply Permutation_in with (vec.to_list (vec.nb_nats b n)).
-      apply Permutation_sym.
+    apply Permutation.Permutation_in with (vec.to_list (vec.nb_nats b n)).
+      apply Permutation.Permutation_sym.
       cset (vec.List_Permutation H).
       rewrite <- vec.List_map in H2...
     rewrite vec.length in H1.
@@ -160,13 +160,12 @@ Section contents.
 
   Definition IndexSeq_NoDup b l: IndexSeq b l -> NoDup l.
   Proof with auto.
-    intros b l.
     rewrite <- (vec.list_round_trip l).
     cset (vec.from_list l).
     intro.
     apply (NoDup_map_inv' (@nb_val (length ol))).
     rewrite vec.List_map.
-    assert (Permutation (vec.map nb_val H) (vec.to_list (vec.nb_nats b (length l)))).
+    assert (Permutation.Permutation (vec.map nb_val H) (vec.to_list (vec.nb_nats b (length l)))).
       apply vec.List_Permutation, vec_IndexSeq_nats_perm...
     rewrite H1.
     unfold vec.nb_nats.
@@ -177,9 +176,8 @@ Section contents.
     apply vec.NoDup_nats.
   Qed.
 
-  Lemma IndexSeq_inv l b: IndexSeq b l -> forall t, In t l -> b <= t < b + length l.
+  Lemma IndexSeq_inv l: forall b, IndexSeq b l -> forall t, In t l -> b <= t < b + length l.
   Proof with auto with arith.
-    intro.
     rewrite <- (vec.list_round_trip l).
     cset (vec.from_list l).
     intros.
@@ -187,7 +185,7 @@ Section contents.
       apply in_map...
     rewrite vec.List_map in H2.
     assert (In (nb_val t) (vec.nb_nats b (length l))).
-      apply Permutation_in with (vec.to_list (vec.map (nb_val (n:=length ol)) H))...
+      apply Permutation.Permutation_in with (vec.to_list (vec.map (nb_val (n:=length ol)) H))...
       apply vec.List_Permutation.
       apply (vec_IndexSeq_nats_perm H H0).
     rewrite vec.length.
@@ -252,12 +250,11 @@ Section contents.
     apply (in_map nb_val _ _ H0).
   Qed.
 
-  Lemma IndexSeq_filterLt e n b l: length l = n ->
+  Lemma IndexSeq_filterLt e n : forall b l, length l = n ->
     IndexSeq b l -> IndexSeq b (filter (fun f => unsum_bool (cmp_cmp (Ecmp UE f e) Lt)) l).
   Proof with auto with arith.
     unfold UE.
     simpl.
-    intros e n.
     induction n.
       intros.
       destruct l.
@@ -272,7 +269,7 @@ Section contents.
     subst b.
     replace n with (length x) in *.
       Focus 2.
-      cset (Permutation_length H3).
+      cset (Permutation.Permutation_length H3).
       simpl in H2.
       unfold Index in H, H2.
       rewrite H in H2.
@@ -281,7 +278,7 @@ Section contents.
       Focus 2.
       apply filter_perm.
       repeat intro...
-      apply Permutation_sym...
+      apply Permutation.Permutation_sym...
     assert (In x0 (x0 :: x)).
       left...
     cset (IndexSeq_base_lowest_value' _ (IndexSeq_perm H0 H3) ).
@@ -316,10 +313,9 @@ Section contents.
     apply Ecmp_apply_sym...
   Qed.
 
-  Lemma IndexSeq_filterGt e l b: IndexSeq b l ->
+  Lemma IndexSeq_filterGt e l: forall b, IndexSeq b l ->
     IndexSeq_above (b + length l) (filter (fun f => unsum_bool (cmp_cmp (Ecmp UE f e) Gt)) l).
   Proof with auto.
-    intros e l.
     set (length l).
     assert (n = length l)...
     clearbody n.
@@ -345,11 +341,11 @@ Section contents.
       apply IndexSeq_perm with (filter (fun f: Index => unsum_bool (cmp_cmp (Ecmp T (subscript f) (subscript e)) Gt)) (x0 :: x))...
       apply filter_perm.
         repeat intro...
-      apply Permutation_sym...
+      apply Permutation.Permutation_sym...
     simpl filter.
     replace n with (length x) in *.
       Focus 2.
-      cset (Permutation_length H3).
+      cset (Permutation.Permutation_length H3).
       simpl in H2.
       rewrite <- H in H2.
       inversion H2...
@@ -376,7 +372,7 @@ Section contents.
     assert (In x1 l).
       cut (In x1 (x0 :: x)).
         intro.
-        apply (Permutation_in _ H3 H7).
+        apply (Permutation.Permutation_in _ H3 H7).
       right...
     cset (IndexSeq_base_lowest_value' x0 H0 x1 H7).
     unfold Ele, UE in H8. simpl in H8.

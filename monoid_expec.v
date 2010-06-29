@@ -118,12 +118,11 @@ Section contents.
 
   Lemma monoid_expec_plus (A B: Set)
     (f: MonoidMonadTrans.M m ne_tree_monad.ext A)
-    (g: A -> MonoidMonadTrans.M m ne_tree_monad.ext B)
-    (gc: forall x y, ne_tree.In x f -> ne_tree.In y f ->
-     monoid_expec (g (snd x)) = monoid_expec (g (snd y))):
+    (g: A -> MonoidMonadTrans.M m ne_tree_monad.ext B) :
+    forall (gc: forall x y, ne_tree.In x f -> ne_tree.In y f ->
+     monoid_expec (g (snd x)) = monoid_expec (g (snd y))),
       monoid_expec (f >>= g) = monoid_expec f + monoid_expec (g (snd (ne_tree.head f))).
   Proof with auto with real.
-    intros A B f g.
     revert f.
     induction f.
         rewrite (@monoid_expec_bind_det _ n)...

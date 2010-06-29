@@ -27,7 +27,7 @@ Section contents.
   Variables (X: Set) (pick: forall T: Set, ne_list.L T -> M T) (cmp: X -> X -> M comparison).
 
   Definition lowRecPart n (t: vector X (S n)) (i: natBelow (S n)) (part: {p: Partitioning X |
-          Permutation (p Eq ++ p Lt ++ p Gt) (vec.remove t i)}) :=
+          Permutation.Permutation (p Eq ++ p Lt ++ p Gt) (vec.remove t i)}) :=
     low <- qs cmp pick (proj1_sig part Lt);
     upp <- qs cmp pick (proj1_sig part Gt);
     ret (low ++ vec.nth t i :: proj1_sig part Eq ++ upp).
@@ -61,10 +61,10 @@ Section contents.
     | h :: t => fun e =>
       i <- pick (ne_list.from_vec (vec.nats 0 (length (h :: t))));
       part <- partition M cmp (vec.nth (h :: t) i) (vec.remove (h :: t) i);
-      low <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Lt) (qs_obligation_1 M qs e i part));
-      upp <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Gt) (qs_obligation_2 M qs e i part low));
+      low <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Lt) (qs_obligation_1 M (fun l H => qs (exist _ l H)) e i part));
+      upp <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Gt) (qs_obligation_2 M (fun l H => qs (exist _ l H)) e i part low));
       ret (low ++ vec.nth (h :: t) i :: proj1_sig part Eq ++ upp)
-    end (refl_equal l0).
+    end refl_equal.
 
   Variable e: extMonad M.
 
@@ -92,7 +92,6 @@ Section contents.
 
   Lemma toBody (l: list X): qs cmp pick l = body l.
   Proof with auto.
-    intro.
     unfold qs.
     fold raw_body.
     rewrite fix_measure_utils.unfold.
@@ -128,7 +127,7 @@ Section contents.
       simpl in H0.
       subst...
     intros.
-    rewrite (raw_body_ext x0 (fun y: {y: list X | length y < length x0} => Wf.Fix_measure_sub (list X) (fun l => length l) (fun _: list X => M (list X)) raw_body (proj1_sig y)) (fun y: {y: list X | length y < length x0} => qs cmp pick (proj1_sig y))).
+    erewrite raw_body_ext.
       rewrite bodies.
       unfold body.
       destruct x0...
@@ -139,7 +138,7 @@ Section contents.
       unfold qs. fold raw_body...
     intros.
     unfold qs. fold raw_body.
-    rewrite H0...
+    f_equal; assumption.
   Qed.
 
   Lemma rect_using_lists (Q: list X -> M (list X) -> Type):

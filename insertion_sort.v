@@ -218,12 +218,12 @@ Section quadratic.
       rewrite return_cost.
       simpl...
     rewrite bind_cost, return_cost.
-    deep_le_trans (IHl x)...
+    deep_le_trans IHl...
     simpl.
     omega.
   Qed.
 
-  Lemma fold_insert_cost (x y: list T):
+  Lemma fold_insert_cost : forall (x y: list T),
     cost (foldlM (insert _ mle) y x) <= length y * length x + div2 (sqrd (length x)).
   Proof with auto with arith; try omega.
     induction x; intros.
@@ -246,7 +246,7 @@ Section quadratic.
     apply div2_sqrdSn.
   Qed.
 
-  Theorem insertion_sort_quadratic (l: list T):
+  Theorem insertion_sort_quadratic: forall (l: list T),
     cost (isort _ mle l) <= div2 (sqrd (length l)).
   Proof fun l => fold_insert_cost l nil.
 
