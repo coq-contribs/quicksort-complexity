@@ -20,13 +20,13 @@ Proof. auto. Qed.
 
 Fixpoint lunit A (f: C A) {struct f}: bind f ret = f :=
   match f return bind f ret = f with
-  | ne_tree.Leaf x => (refl_equal _)
+  | ne_tree.Leaf x => refl_equal
   | ne_tree.Node l =>
-    eq_ind_r (fun l0 => ne_tree.Node l0 = ne_tree.Node l) (refl_equal _)
+    eq_ind_r (fun l0 => ne_tree.Node l0 = ne_tree.Node l) refl_equal
       ((fix F (l: ne_list.L (C A)) :=
         match l return ne_list.map (fun u => bind u ret) l = l with
-        | ne_list.one x => eq_ind_r (fun c => ne_list.one c = ne_list.one x) (refl_equal _) (lunit x)
-        | ne_list.cons x y => eq_ind_r (fun c => ne_list.cons c (ne_list.map (fun x => bind x ret) y) = ne_list.cons x y) (eq_ind_r (fun l => ne_list.cons x l = ne_list.cons x y) (refl_equal _) (F y)) (lunit x)
+        | ne_list.one x => eq_ind_r (fun c => ne_list.one c = ne_list.one x) refl_equal (lunit x)
+        | ne_list.cons x y => eq_ind_r (fun c => ne_list.cons c (ne_list.map (fun x => bind x ret) y) = ne_list.cons x y) (eq_ind_r (fun l => ne_list.cons x l = ne_list.cons x y) refl_equal (F y)) (lunit x)
         end) l)
   end.
 
@@ -120,7 +120,7 @@ Definition pick T: ne_list.L T -> M T := @ne_tree.Node T ∘ ne_list.map (@ne_tr
 Lemma In_bind_inv (X Y: Set) (f: X -> M Y) (x: M X) r:
   ne_tree.In r (bind x f) -> exists z, ne_tree.In z x /\ ne_tree.In r (f z).
 Proof with eauto.
-  induction x...
+  induction x in r |- *...
     simpl.
     intros.
     inversion_clear H.

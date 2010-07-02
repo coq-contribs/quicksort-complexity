@@ -64,14 +64,13 @@ Require harmonic.
 Lemma sumOver_ijs_bound n:
   RsumOver (ijs n) (fun ij => 2 / INR (S (snd ij - fst ij))) <= 2 * INR n * INR (S (log2ceil n)).
 Proof with auto with real.
-  intro.
   rewrite expand_sumOver_ijs.
   simpl snd.
   simpl @fst.
   apply Rle_trans with (RsumOver (nats 0 n) (fun _ => 2 * INR (S (log2ceil n)))).
     apply RsumOver_le.
     intros.
-    fold (compose (fun i => 2 / INR (S i)) (minus x)).
+    change (fun i => _) with (compose (fun i => 2 / INR (S i)) (minus x)).
     rewrite RsumOver_minus...
     rewrite plus_0_r.
     rewrite <- minus_n_n...

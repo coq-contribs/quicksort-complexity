@@ -97,9 +97,9 @@ Section contents.
 
   Lemma pivot_not_In_flt cr: ~ In (vec.nth v pi) (flt pi cr).
   Proof with auto.
-    intros cr H.
+    intros H.
     pose proof ndi as H0.
-    rewrite (Permutation_sym (vec.List_Permutation (vec.remove_perm pi v))) in H0.
+    rewrite (Permutation.Permutation_sym (vec.List_Permutation (vec.remove_perm pi v))) in H0.
     inversion_clear H0...
     destruct (In_filter_inv _ _ _ H)...
   Qed.

@@ -43,7 +43,7 @@ Lemma cost_qs l: cost (qs l) =
   | h :: t => length t + cost (qs (filter (Egtb h) t)) + cost (qs (filter (Eltb h) t))
   end.
 Proof with auto.
-  intro l. pattern l, (qs l).
+  pattern l, (qs l).
   apply (qs_det_parts.rect counted_cmp SimplyProfiled_ext)...
   intros.
   unfold qs_det_parts.partitionPart.
@@ -85,7 +85,7 @@ Hint Constructors CR.
 
 (* .. and note that it is a function: *)
 
-Lemma CRuniq n r: CR n r -> forall r', CR n r' -> r = r'.
+Lemma CRuniq: forall n r, CR n r -> forall r', CR n r' -> r = r'.
 Proof with auto.
   intro n. pattern n.
   apply (well_founded_ind lt_wf).
@@ -101,7 +101,7 @@ Qed.
 
 (* .. which is even computable: *)
 
-Lemma CRimpl n (a: Acc lt n): sig (CR n).
+Lemma CRimpl: forall n (a: Acc lt n), sig (CR n).
 Proof with eauto.
   refine (fix F n (a: Acc lt n) {struct a} :=
     match a with
@@ -125,7 +125,6 @@ Lemma Ceq n: C n =
   | _ => pred n + 2 * Ravg (map C (nats 0 n))
   end.
 Proof with auto.
-  intro.
   unfold C at 1.
   destruct CRimpl.
   simpl proj1_sig.
@@ -150,7 +149,7 @@ Qed.
 
 Lemma C_nonneg n: 0 <= C n.
 Proof with auto with real.
-  intro n. pattern n.
+  pattern n.
   apply (well_founded_ind lt_wf).
   intros.
   rewrite Ceq.
@@ -174,7 +173,7 @@ Proof with auto with real.
     rewrite Ceq.
     simpl pred...
   assert (forall n, C n * n = n * pred n + 2 * Rsum (map C (nats 0 n))).
-    destruct n.
+    destruct n0.
       simpl. field.
     rewrite H.
     unfold Ravg.
@@ -198,7 +197,7 @@ Proof with auto with real.
     rewrite plus_0_r.
     field.
   assert (forall n, C (S n) * S n = (2+n) * C n + 2 * n).
-    destruct n.
+    destruct n0.
       simpl.
       rewrite Ceq.
       simpl.
@@ -225,7 +224,7 @@ Qed. (* todo: get rid of ugly asserts *)
 
 Lemma C_le_compat n m: le n m -> C n <= C m.
 Proof with auto with real.
-  intros n m H.
+  intros H.
   induction H...
   apply Rle_trans with (C m)...
   rewrite (C_S (S m)).
@@ -338,7 +337,7 @@ Qed.
 
 (* What remains is to show that the average cost of qs is bounded by C: *)
 
-Lemma C_bounds_avg_qs_cost l: Ravg (map (INR ∘ cost ∘ qs) (perms l)) <= C (length l).
+Lemma C_bounds_avg_qs_cost: forall l, Ravg (map (INR ∘ cost ∘ qs) (perms l)) <= C (length l).
 Proof with auto with real.
   apply (well_founded_induction_type (Wf_nat.well_founded_ltof _ (@length X))).
   intros.
@@ -348,7 +347,7 @@ Proof with auto with real.
     simpl.
     rewrite Ravg_single...
     rewrite Ceq...
-  rewrite (Ravg_Permutation (Permutation_map (INR ∘ cost ∘ qs) (perms_alt_perms (e :: x)))).
+  rewrite (Ravg_Permutation (Permutation.Permutation_map (INR ∘ cost ∘ qs) (perms_alt_perms (e :: x)))).
   unfold alt_perms.
   set (e :: x) in *.
   rename x into t. rename e into h.
@@ -440,8 +439,8 @@ Proof with auto with real.
   unfold Ravg.
   repeat rewrite map_length.
   repeat rewrite length_splits.
-  rewrite (Permutation_length (plain.isort_permutes Egeb l)).
-  rewrite (Permutation_length (plain.isort_permutes Eleb l)).
+  rewrite (Permutation.Permutation_length (plain.isort_permutes Egeb l)).
+  rewrite (Permutation.Permutation_length (plain.isort_permutes Eleb l)).
   unfold Rdiv.
   rewrite <- Rmult_plus_distr_r.
   apply Rle_trans with (pred (length l) +
@@ -454,7 +453,7 @@ Proof with auto with real.
       apply elemsR_le_Rsum.
       apply elemsR_map' with le...
         apply C_le_compat.
-      rewrite <- (Permutation_length (plain.isort_permutes Eleb l)).
+      rewrite <- (Permutation.Permutation_length (plain.isort_permutes Eleb l)).
       apply (@filtered_sort X Ele EO).
         unfold Egtb, Ele.
         intros.
@@ -466,7 +465,7 @@ Proof with auto with real.
     apply elemsR_le_Rsum.
     apply elemsR_map' with le...
       apply C_le_compat.
-    rewrite <- (Permutation_length (plain.isort_permutes Egeb l)).
+    rewrite <- (Permutation.Permutation_length (plain.isort_permutes Egeb l)).
     apply (@filtered_sort X Ege Ege_preorder).
       unfold Eltb, Ege.
       intros.

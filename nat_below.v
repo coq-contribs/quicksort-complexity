@@ -16,7 +16,7 @@ Fixpoint cond_eq (T: nat -> Set) n m {struct n}: forall c, T (c + n) -> T (c + m
 
 Lemma cond_eq_eq (T: nat -> Set) n c (x y: T (c + n)): cond_eq T n n c x y = (x = y).
 Proof with auto.
-  induction n...
+  induction n in c, x, y |- *...
   simpl.
   intros.
   rewrite IHn.
@@ -29,7 +29,7 @@ Qed.
 
 Lemma cond_eq_neq (T: nat -> Set) n m c (x: T (c + n)) (y: T (c + m)): n <> m -> cond_eq T n m c x y = True.
 Proof with auto.
-  induction n...
+  induction n in m, c, x, y |- *...
     destruct m...
     intros.
     elimtype False...
@@ -50,7 +50,7 @@ Coercion nb_val: natBelow >-> nat.
 
 Lemma natBelow_unique n (x y: natBelow n): nb_val x = nb_val y -> x = y.
 Proof with auto.
-  cut (forall n (x: natBelow n) m (y: natBelow m), nb_val x = nb_val y -> cond_eq natBelow n m 0 x y); intros.
+  cut (forall n (x: natBelow n) m (y: natBelow m), nb_val x = nb_val y -> cond_eq natBelow n m 0 x y); [|clear x y]; intros.
     set (H n x n y H0).
     rewrite cond_eq_eq in c...
   destruct x.

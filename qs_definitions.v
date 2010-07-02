@@ -33,7 +33,7 @@ Section nonmonadic.
 
   Definition gt (x y: T): bool := negb (le x y).
 
-  Program Fixpoint qs (l: list T) {measure length l}: list T :=
+  Program Fixpoint qs (l: list T) {measure (length l) on lt}: list T :=
     match l with
     | nil => nil
     | pivot :: t => qs (filter (gt pivot) t) ++ (pivot :: nil) ++ qs (filter (le pivot) t)
@@ -46,10 +46,10 @@ Section nonmonadic.
     match l as l0 return (l0 = l -> list T) with
     | nil => fun _ => nil
     | pivot :: t0 => fun Heq_l =>
-      qs0 (exist (fun l' => length l' < length l) (filter (gt pivot) t0) (qs_obligation_1 qs0 Heq_l)) ++
+      qs0 (exist (fun l' => length l' < length l) (filter (gt pivot) t0) (qs_obligation_1 (fun l H => qs0 (exist _ l H)) Heq_l)) ++
       (pivot :: nil) ++
-      qs0 (exist (fun l' => length l' < length l) (filter (le pivot) t0) (qs_obligation_2 qs0 Heq_l))
-    end (refl_equal l).
+      qs0 (exist (fun l' => length l' < length l) (filter (le pivot) t0) (qs_obligation_2 (fun l H => qs0 (exist _ l H)) Heq_l))
+    end refl_equal.
 
   Lemma body_eq:
     forall (x0 : list T) (g h0 : {y : list T | length y < length x0} -> list T),
@@ -65,7 +65,7 @@ Section nonmonadic.
     f_equal...
   Qed.
 
-  Lemma unfold: forall l, qs l = Fix_measure_sub (list T) (fun l0 : list T => length l0) (fun _ : list T => list T) body l.
+  Lemma unfold: forall l, qs l = Fix_sub (list T) (MR lt (fun l0 : list T => length l0)) qs_obligation_3 (fun _ : list T => list T) body l.
   Proof. reflexivity. Qed.
 
   Lemma qs_unfold (t: list T) (h: T): qs (h :: t) = qs (filter (gt h) t) ++ (h :: nil) ++ qs (filter (le h) t).
@@ -99,7 +99,7 @@ Section nonmonadic.
       intros.
       destruct x...
       simpl.
-      apply Pcons; apply H; unfold fix_measure_utils.MR; simpl...
+      apply Pcons; apply H; unfold MR; simpl...
     Qed.
 
   End rect.
@@ -145,7 +145,7 @@ Section mon_det. (* For variable discharging. *)
     ); simpl; destruct t...
   Defined.
 
-  Lemma hm (e: extMonad M) c l U (f: list T -> M U) g:
+  Lemma hm (e: extMonad M) c l: forall U (f: list T -> M U) g,
     ext_eq g (f ∘ @proj1_sig _ _) -> filter c l >>= g = filterM c l >>= f.
   Proof with auto. (* todo: rename *)
     induction l.
@@ -207,12 +207,12 @@ Section mon_det. (* For variable discharging. *)
     (* no good, firewall *)
   Abort.
 *)
-  Program Fixpoint qs (l: list T) {measure length l}: M (list T) :=
+  Program Fixpoint qs (l: list T) {measure (length l) on lt}: M (list T) :=
     match l with
     | nil => ret nil
     | pivot :: t =>
-        lower <- filter (gt pivot) t >>= qs ;
-        upper <- filter (le pivot) t >>= qs;
+        lower <- filter (gt pivot) t >>= (fun l => qs l);
+        upper <- filter (le pivot) t >>= (fun l => qs l);
         ret (lower ++ pivot :: upper)
     end.
 
@@ -226,15 +226,15 @@ Section mon_det. (* For variable discharging. *)
     | pivot :: t => fun Heq_l =>
         lower <-
           x <- filter (gt pivot) t;
-          qs0 (exist _ (proj1_sig x) (qs_obligation_1 qs0 Heq_l x));
+          qs0 (exist _ (proj1_sig x) (qs_obligation_1 (fun l H => qs0 (exist _ l H)) Heq_l x));
         upper <-
           x <- filter (le pivot) t;
-          qs0 (exist _ (proj1_sig x) (qs_obligation_2 qs0 Heq_l lower x));
+          qs0 (exist _ (proj1_sig x) (qs_obligation_2 (fun l H => qs0 (exist _ l H)) Heq_l lower x));
         ret (m:=M) (lower ++ pivot :: upper)
-    end (refl_equal l).
+    end refl_equal.
 
   Lemma unfold: forall l, qs l =
-    Fix_measure_sub (list T) (fun l0 : list T => length l0) (fun _ : list T => M (list T)) body l.
+    Fix_sub (list T) (MR lt (fun l0 : list T => length l0)) qs_obligation_3 (fun _ : list T => M (list T)) body l.
   Proof. reflexivity. Qed.
 
   Variable e: extMonad M.
@@ -252,11 +252,11 @@ Section mon_det. (* For variable discharging. *)
     rewrite mon_assoc. rewrite mon_assoc.
     apply e. intro.
     simpl @length in H.
-    rewrite (H (proj1_sig x) (qs_obligation_1 g (refl_equal (t :: x0)) x) (qs_obligation_1 h (refl_equal (t :: x0)) x)).
+    erewrite H.
     apply e. intro.
     do 2 rewrite mon_assoc.
     apply e. intro.
-    rewrite (H (proj1_sig x2) (qs_obligation_2 g (refl_equal (t :: x0)) x1 x2)  (qs_obligation_2 h (refl_equal (t :: x0)) x1 x2))...
+    erewrite H...
   Qed.
 
   Lemma unfold' pivot t: qs (pivot :: t) =
@@ -352,9 +352,9 @@ Section mon_det_partition.
   Variables (T: Set) (M: Monad) (cmp: T -> T -> M comparison).
 
   Fixpoint partition (pivot: T) (l: list T) :
-      M { p: Partitioning T | Permutation (p Eq ++ p Lt ++ p Gt) l } :=
+      M { p: Partitioning T | Permutation.Permutation (p Eq ++ p Lt ++ p Gt) l } :=
         (* can't include a nice ordered-ness spec here, because we only have monadic cmp *)
-    match l return M { p: Partitioning T | Permutation (p Eq ++ p Lt ++ p Gt) l } with
+    match l return M { p: Partitioning T | Permutation.Permutation (p Eq ++ p Lt ++ p Gt) l } with
     | nil => ret (@emp T)
     | h :: t =>
         b <- cmp h pivot;
@@ -362,7 +362,7 @@ Section mon_det_partition.
         ret (addToPartitioning b h tt)
     end.
 
-  Program Fixpoint qs (l: list T) {measure length l}: M (list T) :=
+  Program Fixpoint qs (l: list T) {measure (length l) on lt}: M (list T) :=
     match l with
     | nil => ret nil
     | h :: t =>
@@ -384,9 +384,9 @@ Section mon_nondet.
   Variables (T: Set) (M: Monad) (cmp: T -> T -> M comparison).
 
   Fixpoint partition (pivot: T) (l: list T) :
-      M { p: Partitioning T | Permutation (p Eq ++ p Lt ++ p Gt) l } :=
+      M { p: Partitioning T | Permutation.Permutation (p Eq ++ p Lt ++ p Gt) l } :=
         (* can't include a nice ordered-ness spec here, because we only have monadic cmp *)
-    match l return M { p: Partitioning T | Permutation (p Eq ++ p Lt ++ p Gt) l } with
+    match l return M { p: Partitioning T | Permutation.Permutation (p Eq ++ p Lt ++ p Gt) l } with
     | nil => ret (@emp T)
     | h :: t =>
         b <- cmp h pivot;
@@ -396,7 +396,7 @@ Section mon_nondet.
 
   Variable pick: forall (A: Set), ne_list.L A -> M A.
 
-  Program Fixpoint qs (l: list T) {measure length l}: M (list T) :=
+  Program Fixpoint qs (l: list T) {measure (length l) on lt}: M (list T) :=
     match l with
     | nil => ret nil
     | h :: t =>
@@ -434,8 +434,8 @@ End mon_nondet.
 
 Require Import sort_order.
 
-Fixpoint simplerPartition (e: E) (d: e) (l: list e) {struct l}: { p: Partitioning e | Permutation (p Eq ++ p Lt ++ p Gt) l } :=
-  match l return { p: Partitioning e | Permutation (p Eq ++ p Lt ++ p Gt) l } with
+Fixpoint simplerPartition (e: E) (d: e) (l: list e) {struct l}: { p: Partitioning e | Permutation.Permutation (p Eq ++ p Lt ++ p Gt) l } :=
+  match l return { p: Partitioning e | Permutation.Permutation (p Eq ++ p Lt ++ p Gt) l } with
   | nil => emp e
   | h :: t => addToPartitioning (Ecmp e h d) _ (simplerPartition e d t)
   end. (* todo: rename *)

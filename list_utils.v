@@ -10,6 +10,8 @@ Require Import
 Hint Resolve
   in_map Permutation_refl.
 
+Hint Constructors NoDup.
+
 Hint Constructors
   NoDup Permutation.
 
@@ -110,7 +112,7 @@ Proof with auto.
 Qed.
 
 Lemma incl_trans A (x y: list A): incl x y -> forall z, incl y z -> incl x z.
-Proof. do 8 intro. apply H0. apply H. assumption. Qed.
+Proof. do 5 intro. apply H0. apply H. assumption. Qed.
 
 Hint Resolve incl_filter.
 
@@ -139,7 +141,7 @@ Proof. induction l; firstorder. Qed.
 
 Implicit Arguments In_map_inv [T U f l y].
 
-Instance In_Permutation A (x: A): Morphism (Permutation ==> iff) (In x).
+Instance In_Permutation A (x: A): Proper (Permutation ==> iff) (In x).
 Proof.
   repeat intro.
   pose proof (Permutation_in).
@@ -147,10 +149,10 @@ Proof.
   firstorder.
 Qed.
 
-Instance Permutation_NoDup {X}: Morphism (Permutation ==> iff) (@NoDup X).
+Instance Permutation_NoDup {X}: Proper (Permutation ==> iff) (@NoDup X).
 Proof with firstorder.
   pose proof NoDup_cons.
-  intros ??? E.
+  intros ? ? E.
   induction E; [firstorder | | | firstorder].
     split; intro A; inversion_clear A; apply NoDup_cons...
       rewrite <- E...
@@ -163,9 +165,9 @@ Hint Resolve incl_tran.
 Lemma Permutation_incl X (a b: list X): Permutation a b -> incl a b.
 Proof. induction 1; firstorder. Qed.
 
-Instance count_perm A: Morphism (pointwise_relation _ eq ==> Permutation ==> eq) (@count A).
+Instance count_perm A: Proper (pointwise_relation _ eq ==> Permutation ==> eq) (@count A).
 Proof with auto.
-  intros A p p' E.
+  intros p p' E.
   assert (forall l, count p l = count p' l).
     induction l...
     simpl. rewrite E, IHl...
@@ -184,11 +186,11 @@ Proof. reflexivity. Qed.
 Hint Immediate pointwise_eq_refl.
   (* this really should be redundant *)
 
-Instance count_perm_simple A (p: A -> bool): Morphism (Permutation ==> eq) (count p).
+Instance count_perm_simple A (p: A -> bool): Proper (Permutation ==> eq) (count p).
 Proof. intros. apply count_perm. auto. Qed.
   (* just an instantiation of count_perm, but rewriting with the latter can produce nasty existentials *)
 
-Instance filter_eq_morphism T: Morphism (pointwise_relation _ eq ==> eq ==> eq) (@filter T).
+Instance filter_eq_morphism T: Proper (pointwise_relation _ eq ==> eq ==> eq) (@filter T).
 Proof with auto.
   repeat intro.
   subst.
@@ -198,7 +200,7 @@ Proof with auto.
   rewrite IHy0...
 Qed.
 
-Instance filter_perm X: Morphism (pointwise_relation _ eq ==> Permutation ==> Permutation) (@filter X).
+Instance filter_perm X: Proper (pointwise_relation _ eq ==> Permutation ==> Permutation) (@filter X).
 Proof with auto.
   repeat intro.
   induction H0; rewrite H in *; simpl...
@@ -237,7 +239,7 @@ Qed.
 
 Lemma incl_map X Y (f: X -> Y) (a b: list X): incl a b -> incl (map f a) (map f b).
 Proof with auto.
-  do 8 intro.
+  do 3 intro.
   destruct (In_map_inv H0).
   destruct H1.
   subst...
@@ -316,7 +318,6 @@ Proof with auto.
   inversion_clear H0.
     subst...
   right...
-  apply IHl with s...
 Qed.
 
 Lemma In_concat_inv X (x: X) (l: list (list X)):
@@ -370,7 +371,7 @@ Qed.
 Lemma NoDup_incl_Permutation A (a b: list A):
   length a = length b -> NoDup a -> incl a b -> Permutation a b.
 Proof with auto. (* todo: prove in terms of the vec equivalent *)
-  induction a; intros.
+  induction a in b |- *; intros.
     destruct b.
       apply perm_nil.
     discriminate.
@@ -458,7 +459,7 @@ Qed.
 Lemma InP_In_inv X (x: X) (ll: list (list X)):
   InP (In x) ll -> exists l, In x l /\ In l ll.
 Proof with auto.
-  intros X x ll H.
+  intros H.
   induction H.
     exists x0.
     split...
@@ -568,7 +569,7 @@ Hint Constructors elemsR.
 
 Instance elemsR_trans A `{R: relation A} {TR: Transitive R}: Transitive (elemsR R).
 Proof with auto.
-  do 4 intro.
+  intro.
   induction x.
     intros.
     destruct y...
@@ -622,7 +623,7 @@ Section Permuted.
   Hint Immediate permuted_refl.
 
   Lemma elemsR_permuted l l': elemsR R l l' -> Permuted l l'.
-  Proof. induction l; intros; inversion_clear H; auto. Qed.
+  Proof. induction l in l' |- *; intros; inversion_clear H; auto. Qed.
 
   (* the following looks like a more powerful type for the swap ctor, but it isn't, because we can implement it with the others: *)
 
@@ -676,7 +677,7 @@ Proof with auto.
 Qed.
 *)
 
-Lemma Permuted_map A B (R: relation B) (f: A -> B): Morphism (Permuted (on f R) ==> Permuted R) (map f).
+Lemma Permuted_map A B (R: relation B) (f: A -> B): Proper (Permuted (on f R) ==> Permuted R) (map f).
 Proof. repeat intro. induction H; simpl; eauto. Qed.
 
 Definition add := fold_right plus (0%nat).
@@ -703,7 +704,7 @@ Proof. induction l; auto. Qed.
 Definition product A B (aa: list A) (bb: list B): list (A * B) :=
   concat (map (fun a => map (pair a) bb) aa).
 
-Instance Permutation_concat T: Morphism (Permutation ==> Permutation) (@concat T).
+Instance Permutation_concat T: Proper (Permutation ==> Permutation) (@concat T).
 Proof with auto.
   repeat intro.
   induction H...
@@ -775,10 +776,10 @@ Instance Reflexive_Permutation T: Reflexive Permutation := @Permutation_refl T.
 Instance Reflexive_Symmetric T: Symmetric Permutation := @Permutation_sym T.
 Instance Reflexive_Transitive T: Transitive Permutation := @perm_trans T.
 
-Instance app_Permutation_mor T: Morphism (Permutation ==> Permutation ==> Permutation) (@app T).
+Instance app_Permutation_mor T: Proper (Permutation ==> Permutation ==> Permutation) (@app T).
 Proof. repeat intro. apply Permutation_app; assumption. Qed.
 
-Instance map_Permutation_mor T U (f: T -> U): Morphism (Permutation ==> Permutation) (map f) :=
+Instance map_Permutation_mor T U (f: T -> U): Proper (Permutation ==> Permutation) (map f) :=
   Permutation_map f.
 
 (*
@@ -851,7 +852,7 @@ Proof with auto.
   rewrite concat_app...
 Qed.
 
-Instance map_eq_morphism A B: Morphism (pointwise_relation _ eq ==> eq ==> eq) (@map A B).
+Instance map_eq_morphism A B: Proper (pointwise_relation _ eq ==> eq ==> eq) (@map A B).
 Proof with auto.
   repeat intro.
   subst.
@@ -880,7 +881,7 @@ Section splits_and_perms.
 
   Lemma splits_are_perms l p: In p (splits l) -> Permutation (fst p :: snd p) l.
   Proof with auto.
-    induction l...
+    induction l in p |- *...
       simpl.
       intuition.
     simpl.
@@ -942,7 +943,7 @@ Section splits_and_perms.
 
   Lemma perms_are_perms l a: In a (perms l) -> Permutation a l.
   Proof with auto.
-    induction l.
+    induction l in a |- *.
       simpl.
       intuition.
       subst...
@@ -1025,7 +1026,7 @@ Section splits_and_perms.
     merges_spec a b r ->
     forall r', merges_spec a b r' -> r = r'.
   Proof with auto.
-    intros a b r H.
+    intros H.
     induction H; intros.
         inversion_clear H...
       inversion_clear H...
@@ -1054,7 +1055,7 @@ Section splits_and_perms.
 
   Definition me (ab: list T * list T): nat := length (fst ab) + length (snd ab).
 
-  Program Fixpoint merges_ex (ab: list T * list T) {measure me ab}: sig (merges_spec (fst ab) (snd ab)) :=
+  Program Fixpoint merges_ex (ab: list T * list T) {measure (me ab)}: sig (merges_spec (fst ab) (snd ab)) :=
     match ab with
     | (nil, x) => x :: nil
     | (x, nil) => x :: nil
@@ -1089,7 +1090,7 @@ Section splits_and_perms.
 
   Hint Resolve Permutation_concat.
 
-  Lemma product_app T (a b c: list T): product (a ++ b) c = product a c ++ product b c.
+  Lemma product_app: forall T (a b c: list T), product (a ++ b) c = product a c ++ product b c.
   Proof with auto.
     intros.
     unfold product.
@@ -1097,7 +1098,7 @@ Section splits_and_perms.
     rewrite concat_app...
   Qed.
 
-  Lemma product_concat T (a: list (list T)) (b: list T): product (concat a) b = concat (map (flip (@product _ _) b) a).
+  Lemma product_concat: forall T (a: list (list T)) (b: list T), product (concat a) b = concat (map (flip (@product _ _) b) a).
   Proof with auto.
     induction a...
     simpl.
@@ -1135,8 +1136,8 @@ Section splits_and_perms.
     apply Permutation_app_swap.
   Qed.
 
-  Instance Permutation_perms: Morphism (Permutation ==> Permutation) perms.
-  Proof with eauto.
+  Instance Permutation_perms: Proper (Permutation ==> Permutation) perms.
+  Proof with eauto 2.
     intros l l' P.
     induction P...
       simpl.
@@ -1181,7 +1182,7 @@ Section splits_and_perms.
           (insert_everywhere a >>= merges y x)
           (merges y >>= insert_everywhere a x). *)
   Proof with auto.
-    intro.
+    revert x y.
     apply two_lists_rect; intros.
         simpl.
         rewrite merges_nil_r.
@@ -1331,7 +1332,6 @@ Section splits_and_perms.
      (forall z, In z y -> p z = false) ->
      forall r, In r (map (filter p) (merges x y)) -> r = x.
   Proof with auto.
-    intros p x y.
     pattern x, y.
     apply two_lists_rect.
         intros.
@@ -1372,7 +1372,7 @@ Section splits_and_perms.
   (* While a closed formula for merges length is tricky, we can easily prove that the length depends only on the
   length of the arguments. *)
 
-  Instance length_merges_mor: Morphism (on length eq ==> on length eq ==> on length eq) merges.
+  Instance length_merges_mor: Proper (on length eq ==> on length eq ==> on length eq) merges.
   Proof with auto.
     unfold on.
     do 4 intro.
@@ -1456,12 +1456,12 @@ Proof with auto.
     subst t.
     rewrite concat_repeat.
     pose proof (Permutation_length (perms_are_perms _ _ H)).
-    rewrite (length_merges_mor H0 (refl_equal _))...
+    rewrite (length_merges_mor H0 refl_equal)...
   intros.
   rewrite (@map_repeat _ _ (filter p) x (merges x x0)).
     subst t.
     pose proof (Permutation_length (perms_are_perms _ _ H0)).
-    rewrite (length_merges_mor (refl_equal _) H1)...
+    rewrite (length_merges_mor refl_equal H1)...
   intros.
   apply (filter_merges) with p x0...
     intros.
@@ -1476,7 +1476,7 @@ Proof with auto.
   apply (filter_In (fun q => negb (p q)) z l)...
 Qed.
 
-Instance Permutation_length_morphism T: Morphism (Permutation ==> eq) (@length T) :=
+Instance Permutation_length_morphism T: Proper (Permutation ==> eq) (@length T) :=
   @Permutation_length T.
 
 Lemma repeat_map_comm A B (f: A -> B) n: ext_eq (map f ∘ repeat n) (repeat n ∘ f).
@@ -1497,7 +1497,7 @@ Qed.
 
 Hint Immediate length_repeat.
 
-Instance map_ext_eq_mor A B: Morphism (@ext_eq A B ==> ext_eq) map.
+Instance map_ext_eq_mor A B: Proper (@ext_eq A B ==> ext_eq) map.
   repeat intro.
   apply map_ext.
   assumption.
@@ -1533,7 +1533,6 @@ Qed.
 Lemma elemsR_length A (R: A -> A -> Prop) a b (H: elemsR R a b):
   length a = length b.
 Proof with auto.
-  intros A R a b H.
   induction H...
   simpl.
   intuition.
@@ -1603,7 +1602,7 @@ Lemma elemsR_map':
       elemsR Ra l l' -> elemsR Rb (map f l) (map f l').
 Proof. intros. induction H; simpl; auto... Qed.
 
-Instance Permutation_cons_morphism A: Morphism (eq ==> Permutation ==> Permutation) (@cons A).
+Instance Permutation_cons_morphism A: Proper (eq ==> Permutation ==> Permutation) (@cons A).
 Proof with auto.
   repeat intro.
   subst...

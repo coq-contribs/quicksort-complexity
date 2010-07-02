@@ -48,7 +48,7 @@ COQSRCLIBS:=-I $(COQLIB)/kernel -I $(COQLIB)/lib \
   -I $(COQLIB)/contrib/ring -I $(COQLIB)/contrib/romega \
   -I $(COQLIB)/contrib/rtauto -I $(COQLIB)/contrib/setoid_ring \
   -I $(COQLIB)/contrib/subtac -I $(COQLIB)/contrib/xml
-COQLIBS:=-I . 
+COQLIBS:=-R . QuicksortComplexity
 COQDOCLIBS:=
 
 ##########################

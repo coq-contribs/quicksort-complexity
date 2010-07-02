@@ -1,4 +1,5 @@
 Set Implicit Arguments.
+Unset Automatic Introduction.
 
 Require Import Setoid.
 Require Import util.

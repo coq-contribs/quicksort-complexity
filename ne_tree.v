@@ -1,6 +1,7 @@
 (* Intended for use without Import. *)
 
 Set Implicit Arguments.
+Unset Automatic Introduction.
 
 Require ne_list.
 Require Import Setoid.

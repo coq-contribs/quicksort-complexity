@@ -45,7 +45,7 @@ Section contents.
     (forall i, ~ In i q -> expec (count (beq_X i)) t = 0) ->
     expec length t <= Rsum (map fr q).
   Proof with auto with real.
-    induction q.
+    induction q in t |- *.
       simpl.
       intros.
       rewrite counts_0_expec_length_0...

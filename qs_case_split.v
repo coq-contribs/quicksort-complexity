@@ -63,8 +63,8 @@ Section contents.
      with (Rsum (map (fun x1 : natBelow (S n) => expec f (g x1)) x)).
       Focus 2.
       apply Rsum_Permutation.
-      apply Permutation_sym.
-      apply Permutation_map.
+      apply Permutation.Permutation_sym.
+      apply Permutation.Permutation_map.
       rewrite ne_list.from_vec_to_plain.
       apply NoDup_incl_Permutation.
           do 2 rewrite vec.length...

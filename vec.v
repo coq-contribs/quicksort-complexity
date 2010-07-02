@@ -27,18 +27,16 @@ Definition tail n A (v: vector A (S n)): vector A n :=
   | Vnil => I | Vcons _ _ t => t
   end.
 
-Lemma eq_nil A (v: vector A 0): v = Vnil A.
+Lemma eq_nil A (v: vector A 0): v = Vnil.
 Proof.
-  intro A.
-  cut (forall n (v: vector A n), match n return vector A n -> Prop with 0 => fun v => v = Vnil A | _ => fun _ => True end v).
+  cut (forall n (v: vector A n), match n return vector A n -> Prop with 0 => fun v => v = Vnil | _ => fun _ => True end v).
     intros.
     apply (H 0 v).
-  destruct v; auto.
+  clear v; destruct v; auto.
 Qed.
 
 Lemma eq_cons A n (v: vector A (S n)): v = Vcons (head v) (tail v).
 Proof.
-  intro A.
   cut (forall n (v: vector A n),
       match n return vector A n -> Prop with
       | 0 => fun _ => True
@@ -46,7 +44,7 @@ Proof.
       end v).
     intros.
     apply (H (S n) v).
-  destruct v; auto.
+  clear v; destruct v; auto.
 Qed.
 
 Lemma Vcons_eq A (h h': A) n (t t': vector A n): h = h' -> t = t' -> Vcons h t = Vcons h' t'.
@@ -73,7 +71,7 @@ Fixpoint to_list X (n: nat) (v: vector X n) {struct v}: List.list X :=
 
 Fixpoint from_list A (l: List.list A): vector A (List.length l) :=
   match l return vector A (List.length l) with
-  | List.nil => Vnil A | List.cons h t => Vcons h (from_list t)
+  | List.nil => Vnil | List.cons h t => Vcons h (from_list t)
   end.
 
 Coercion to_list: vector >-> List.list.
@@ -85,6 +83,7 @@ Proof with try reflexivity. induction l... simpl. rewrite IHl... Qed.
 Lemma vec_round_trip (X T: Set) (n : nat) (v : vector X n) (f: forall n, vector X n -> T):
   (f _ (from_list (to_list v))) = f _ v.
 Proof with auto.
+  revert f.
   induction v...
   intros.
   simpl.
@@ -112,7 +111,7 @@ Qed.
 (* simultaneous induction over two vectors *)
 
 Lemma double_rect A B (P: forall n, vector A n -> vector B n -> Prop):
-  P 0 (Vnil A) (Vnil B) ->
+  P 0 Vnil Vnil ->
   (forall n (v: vector A n) (w: vector B n) (x: A) (y: B), P n v w -> P (S n) (Vcons x v) (Vcons y w)) ->
   forall n (v: vector A n) (w: vector B n), P n v w.
 Proof.
@@ -225,7 +224,6 @@ Proof. reflexivity. Qed.
 
 Lemma natBelow_S_inv (n: nat) (nb: natBelow (S n)): { nb': natBelow n | nb = Snb nb' } + { nb = nb0 n }.
 Proof with reflexivity.
-  intros n nb.
   pattern n, nb.
   apply natBelow_rect_S.
     simpl.
@@ -302,7 +300,7 @@ Qed.
 
 Lemma ext_nth A n (x y: vector A n): ext_eq (nth x) (nth y) -> x = y.
 Proof with auto.
-  intro.
+  revert n x y.
   apply (double_rect (fun n (x y: vector A n) => ext_eq (nth x) (nth y) -> x = y))...
   intros.
   cset (H0 (nb0 n)).
@@ -316,17 +314,17 @@ Qed.
 
 Lemma In_nth A n i (v: vector A n): List.In (nth v i) v.
 Proof with auto.
-  induction i using natBelow_rect.
+  induction i using natBelow_rect in v |- *.
     simpl.
     intros.
     rewrite (eq_cons v).
     simpl head.
     left...
   intros.
-  rewrite (eq_cons v0).
+  rewrite (eq_cons v).
   right.
   simpl plus.
-  fold (Snb (mkNatBelow v p)).
+  fold (Snb (mkNatBelow v0 p)).
   rewrite nth_S...
 Qed.
 
@@ -362,7 +360,7 @@ Proof. intros. unfold eq_rec_r, eq_rec, eq_rect. case (sym_eq h). auto. Qed.
 
 Fixpoint take A n: forall m, vector A (n + m) -> vector A n :=
   match n return forall m, vector A (n + m) -> vector A n with
-  | 0 => fun _ _ => Vnil A
+  | 0 => fun _ _ => Vnil
   | S n' => fun m v => Vcons (head v) (take n' m (tail v))
   end.
 
@@ -383,7 +381,7 @@ Qed.
 
 Lemma eq_app_inv A n m (a b: vector A n) (c d: vector A m): app a c = app b d -> a = b /\ c = d.
 Proof with auto.
-  induction n; simpl; intros.
+  induction n in m, a, b, c, d |- *; simpl; intros.
     rewrite (eq_nil a).
     rewrite (eq_nil b)...
   destruct (Vcons_eq_inv H).
@@ -406,7 +404,7 @@ Definition remove (T: Set) (n: nat) (v: vector T (S n)) (nb: natBelow (S n)): ve
 (* permutations *)
 
 Inductive Permutation (A: Type): forall n, vector A n -> vector A n -> Prop :=
-  | perm_nil: Permutation (Vnil A) (Vnil A)
+  | perm_nil: Permutation Vnil Vnil
   | perm_skip (x: A) n (v v': vector A n): Permutation v v' -> Permutation (Vcons x v) (Vcons x v')
   | perm_swap (x y: A) n (l: vector A n): Permutation (Vcons y (Vcons x l)) (Vcons x (Vcons y l))
   | perm_trans n (l l' l'': vector A n): Permutation l l' -> Permutation l' l'' -> Permutation l l''.
@@ -416,14 +414,14 @@ Hint Resolve perm_skip.
 Hint Resolve perm_swap.
 
 Lemma perm_sym (X: Set) n (a b: vector X n): Permutation a b -> Permutation b a.
-Proof with auto. intros X n a b p. induction p... apply perm_trans with l'... Qed.
+Proof with auto. intros p. induction p... apply perm_trans with l'... Qed.
 
 Lemma perm_refl (X: Set) n (v: vector X n): Permutation v v.
 Proof. induction v; auto. Qed.
 
-Lemma List_Permutation (X: Set) n (a b: vector X n): Permutation a b -> List.Permutation a b.
+Lemma List_Permutation (X: Set) n (a b: vector X n): Permutation a b -> Permutation.Permutation a b.
 Proof with eauto.
-  intros X n a b p.
+  intros p.
   induction p; simpl...
 Qed.
 
@@ -438,7 +436,7 @@ Proof. reflexivity. Qed.
 Lemma in_remove (T: Set) x n (i: natBelow (S n)) (v: vector T (S n)):
   List.In x v -> x <> nth v i -> List.In x (remove v i).
 Proof with auto.
-  intros T x n i.
+  revert v.
   pattern n, i.
   apply natBelow_rect_S.
     intros.
@@ -467,7 +465,7 @@ Qed.
 Lemma remove_map (A B: Set) (f: A -> B) n (i: natBelow (S n)) (v: vector A (S n)):
   remove (map f v) i = map f (remove v i).
 Proof with reflexivity.
-  intros A B f n i.
+  revert v.
   pattern n, i.
   apply natBelow_rect_S.
     simpl.
@@ -490,7 +488,7 @@ Qed.
 Lemma remove_perm (T: Set) n (nb: natBelow (S n)) (v: vector T (S n)):
   Permutation (Vcons (nth v nb) (remove v nb)) v.
 Proof with auto.
-  intros T n nb.
+  revert v.
   pattern n, nb.
   apply natBelow_rect_S.
     simpl.
@@ -528,7 +526,7 @@ Qed.
 Lemma SkipList_remove (A: Set) n (nb: natBelow (S n)) (l: vector A (S n)):
   SkipList (remove l nb) l.
 Proof.
-  intros A n nb.
+  revert l.
   pattern n, nb.
   apply natBelow_rect_S.
     simpl.
@@ -571,7 +569,7 @@ Defined.
 
 Fixpoint nats (x n: nat) {struct n}: vector (natBelow (x + n)) n :=
   match n as n0 return vector (natBelow (x + n0)) n0 with
-  | 0 => Vnil _
+  | 0 => Vnil
   | S n0 => map (fun d => eq_rec_r natBelow d (trans_plus_n_Sm x n0))
     (Vcons (mkNatBelow x n0) (nats (S x) n0))
   end.
@@ -598,7 +596,7 @@ Qed.
 
 Lemma In_nats_S v u w: List.In w (nats u v) -> List.In (Snb w) (nats (S u) v).
 Proof with auto. (* todo: rename *)
-  induction v...
+  induction v in u, w |- *...
   simpl.
   intros.
   destruct H.
@@ -628,7 +626,7 @@ Qed.
 
 Lemma In_nb_nats v n m: List.In (v + m) (nb_nats m (S (v + n))).
 Proof with auto.
-  induction v.
+  induction v in n, m |- *.
     simpl.
     intros.
     left.
@@ -713,8 +711,7 @@ Proof. intros. rewrite (eq_cons v). apply X. Qed.
 Lemma In_inv_perm (X: Set) (x: X) n (v: vector X (S n)):
   List.In x v -> exists v': vector X n, Permutation (Vcons x v') v.
 Proof with auto.
-  induction n.
-    intro.
+  induction n in v |- *.
     rewrite (eq_cons v).
     rewrite (eq_nil (tail v)).
     intros.
@@ -724,7 +721,7 @@ Proof with auto.
       rewrite (eq_nil (tail v)).
       apply perm_refl.
     elimtype False...
-  intro. pattern v. apply S_rect. clear v.
+  pattern v. apply S_rect. clear v.
   intros h t. pattern t. apply S_rect. clear t.
   intros.
   simpl in H.
@@ -747,8 +744,8 @@ Proof with auto.
     rewrite (eq_nil a).
     rewrite (eq_nil b).
     apply perm_nil.
-  intro a. pattern a. apply S_rect. clear a. intros ha ta.
-  intro b. pattern b. apply S_rect. clear b. intros hb tb.
+  pattern a. apply S_rect. clear a. intros ha ta.
+  pattern b. apply S_rect. clear b. intros hb tb.
   intros.
   assert (List.In ha (Vcons hb tb)).
     apply H0.
@@ -771,17 +768,16 @@ Proof with auto.
     apply H0.
     right...
   apply Permutation_incl.
-  apply List.Permutation_sym.
+  apply Permutation.Permutation_sym.
   apply List_Permutation...
 Qed.
 
 Lemma In_nats_inv z y (x: natBelow (y + z)): List.In x (nats y z) -> y <= x < z + y.
 Proof with auto.
-  induction z.
+  induction z in y, x |- *.
     intros.
     elimtype False...
   simpl.
-  intros y x.
   rewrite <- List_map.
   intro.
   destruct H.
@@ -813,7 +809,7 @@ Qed.
 
 Lemma NoDup_nats y x: List.NoDup (nats x y).
 Proof with auto. (* todo: proof way too long *)
-  induction y.
+  induction y in x |- *.
     simpl...
   simpl.
   intros.
@@ -850,7 +846,7 @@ Proof. reflexivity. Qed.
 
 Lemma nth_nats m (i: natBelow m) n: nb_val (nth (nats n m) i) = n + i.
 Proof with auto.
-  intros m i.
+  revert n.
   pattern m, i.
   apply natBelow_rect.
     simpl.
@@ -874,7 +870,7 @@ Qed.
 
 Lemma nth_nats3 m i n: nth (nats (S n) m) i = Snb (nth (nats n m) i).
 Proof with auto.
-  intros m i.
+  revert n.
   pattern m, i.
   apply natBelow_rect.
     simpl.
@@ -929,7 +925,7 @@ Lemma nats_plus x n y:
   nats n (x + y) =
   map (fun nb => eq_rec_r natBelow nb (plus_assoc n x y)) (app (map (@plusnb y _) (nats n x)) (nats (n + x) y)).
 Proof with auto.
-  induction x.
+  induction x in n, y |- *.
     simpl.
     intros.
     apply ext_nth.
@@ -993,9 +989,9 @@ Proof. reflexivity. Qed.
 Lemma Permutation_mapping (X: Set) n (a b: vector X n): Permutation a b ->
   exists l: vector (natBelow n) n, (forall x, List.In x l) /\ map (nth b) l = a.
 Proof with auto with arith.
-  intros X n a b p.
+  intros p.
   induction p.
-        exists (Vnil (natBelow 0)).
+        exists Vnil.
         split...
         intros.
         inversion x.
@@ -1099,8 +1095,8 @@ Section contents.
   (* Vsorted *)
 
   Inductive sorted: forall n, vector X n -> Prop := (* Coq.Sorting's definition sucks *)
-    | sorted_nil: sorted (Vnil X)
-    | sorted_one x: sorted (Vcons x (Vnil X))
+    | sorted_nil: sorted Vnil
+    | sorted_one x: sorted (Vcons x Vnil)
     | sorted_more (a b: X) n (t: vector X n):
         Xle a b -> sorted (Vcons b t) -> sorted (Vcons a (Vcons b t)).
 
@@ -1182,7 +1178,7 @@ Section contents.
   Lemma sorted_le_indices_le_values n (v: vector X n): sorted v ->
     forall (i j: natBelow n), i <= j -> Xle (nth v i) (nth v j).
   Proof with auto with arith.
-    intros n v s.
+    intros s.
     induction s.
         intros.
         inversion i.
@@ -1210,7 +1206,7 @@ Section contents.
   Lemma sorted_lt_values_lt_indices n (v: vector X n): sorted v ->
     forall i j, Xlt (nth v i) (nth v j) -> i < j.
   Proof with auto with arith.
-    intros n v s.
+    intros s.
     induction s.
         intros.
         inversion i.
@@ -1247,7 +1243,7 @@ Section contents.
 
   Fixpoint insert_ordered (x: X) n: vector X n -> vector X (S n) :=
     match n return vector X n -> vector X (S n) with
-    | 0 => fun _ => Vcons x (Vnil X)
+    | 0 => fun _ => Vcons x Vnil
     | S n' => fun v => if XleDec x (head v)
         then Vcons x v
         else Vcons (head v) (insert_ordered x (tail v))
@@ -1290,7 +1286,7 @@ Section contents.
 
   Fixpoint insertion_sort n: vector X n -> vector X n :=
     match n return vector X n -> vector X n with
-    | 0 => fun _ => Vnil X
+    | 0 => fun _ => Vnil
     | S n' => fun v => insert_ordered (head v) (insertion_sort (tail v))
     end.
 
