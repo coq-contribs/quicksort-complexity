@@ -8,6 +8,10 @@ Require Import Setoid.
 Require Import util.
 Require List.
 
+Coercion vec.to_list: Bvector.vector >-> List.list.
+Coercion vec.from_list: List.list >-> Bvector.vector.
+Coercion ne_list.to_plain: ne_list.L >-> List.list.
+  
 Section contents.
 
   Variable E: Set.

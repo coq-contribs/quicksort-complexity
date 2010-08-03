@@ -9,6 +9,8 @@ Require ne_tree_monad.
 Require Import Plus.
 Require Import monoid_tree_monad.
 
+Coercion sort_order.Ec : sort_order.E >-> Sortclass. 
+
 Section contents.
 
   Variable E: sort_order.E.

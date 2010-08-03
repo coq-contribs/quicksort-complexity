@@ -24,6 +24,9 @@ Require Import Morphisms.
 Require Import Relation_Definitions.
 Require vec.
 
+Coercion vec.to_list: Bvector.vector >-> List.list.
+Coercion vec.from_list: List.list >-> Bvector.vector.
+
 Definition numbers := 3 :: 2 :: 5 :: 9 :: 7 :: 6 :: 1 :: 0 :: 4 :: 8 :: nil.
 
 Require Import Bvector.

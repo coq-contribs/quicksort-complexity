@@ -116,6 +116,9 @@ Qed.
 Require Import Relations.
 Require vec.
 
+Coercion vec.to_list: Bvector.vector >-> List.list.
+Coercion vec.from_list: List.list >-> Bvector.vector.
+
 Lemma filtered_sort (T: Set) (R: relation T) (P: preorder T R) (p: T -> T -> bool) (pc: forall x y, p y x = true -> ~ R y x) (l: list T): vec.sorted R l ->
   elemsR le (map (fun x => length (filter (p (fst x)) (snd x))) (splits l)) (nats 0 (length l)).
 Proof with auto.

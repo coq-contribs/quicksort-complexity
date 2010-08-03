@@ -6,6 +6,9 @@ Require Import util.
 Require Import List.
 Require Import list_utils.
 
+Coercion vec.to_list: Bvector.vector >-> List.list.
+Coercion vec.from_list: List.list >-> Bvector.vector.
+
 Section contents.
 
   Import qs_definitions.nonmonadic.

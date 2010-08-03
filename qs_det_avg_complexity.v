@@ -6,6 +6,8 @@ Require Import
   insertion_sort arith_lems.
 Require qs_det_parts.
 
+Coercion monads.mon : monads.Monad >-> Funclass.
+
 (* We take as given an arbitrary decidable order: *)
 
 Variable X: E.
