@@ -1,3 +1,4 @@
+Global Set Automatic Coercions Import.
 Set Implicit Arguments.
 
 (* Intended for use without Import. *)

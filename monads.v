@@ -1,4 +1,4 @@
-
+Global Set Automatic Coercions Import.
 Set Implicit Arguments.
 
 Require Import List.
