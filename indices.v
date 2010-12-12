@@ -18,7 +18,7 @@ Require Import Bool.
 Require Import EqNat.
 Require Import nat_seqs.
 Require Import sort_order.
-Require Import Bvector.
+Require Vector.
 Require Import Relations.
 Require Import nat_below.
 Require vec.
@@ -120,7 +120,7 @@ Section contents.
     apply (le_Sn_n x)...
   Qed.
 
-  Lemma vec_IndexSeq_nats_perm b n (v: vector Index n): IndexSeq b v ->
+  Lemma vec_IndexSeq_nats_perm b n (v: Vector.t Index n): IndexSeq b v ->
     vec.Permutation (vec.map nb_val v) (vec.nb_nats b n).
   Proof with auto.
     unfold vec.nb_nats.
@@ -143,7 +143,7 @@ Section contents.
     omega.
   Qed.
 
-  Lemma nats_Permutation_IndexSeq' b n (l: vector Index n):
+  Lemma nats_Permutation_IndexSeq' b n (l: Vector.t Index n):
     vec.Permutation (vec.map nb_val l) (vec.nb_nats b n) -> IndexSeq b l.
   Proof with auto.
     intros.

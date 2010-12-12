@@ -26,12 +26,12 @@ Require vec.
 
 Definition numbers := 3 :: 2 :: 5 :: 9 :: 7 :: 6 :: 1 :: 0 :: 4 :: 8 :: nil.
 
-Require Import Bvector.
+Require Vector.
 
 Hint Constructors vec.sorted.
 
 Lemma vec_sorted_impl (X: Set) (P Q: relation X): (forall x y, P x y -> Q x y) ->
-  forall n (l: vector X n), vec.sorted P l -> vec.sorted Q l.
+  forall n (l: Vector.t X n), vec.sorted P l -> vec.sorted Q l.
 Proof. induction 2; auto. Qed.
 
 Module plain.

@@ -10,88 +10,90 @@ Require Import Le.
 Require Import Plus.
 Require Import Lt.
 Require Import arith_lems.
-Require Import Bvector.
+Require Vector.
 Require Import Relations.
 Require List.
 
-Implicit Arguments Vcons [A n].
+Implicit Arguments Vector.cons [A n].
+Implicit Arguments Vector.nil [A].
+
 
 (* eliminators/inversion *)
 
-Definition head A n (v: vector A (S n)): A :=
+Definition head A n (v: Vector.t A (S n)): A :=
   match v with
-  | Vnil => I | Vcons h _ _ => h
+  | Vector.nil => I | Vector.cons h _ _ => h
   end.
 
-Definition tail n A (v: vector A (S n)): vector A n :=
+Definition tail n A (v: Vector.t A (S n)): Vector.t A n :=
   match v with
-  | Vnil => I | Vcons _ _ t => t
+  | Vector.nil => I | Vector.cons _ _ t => t
   end.
 
-Lemma eq_nil A (v: vector A 0): v = Vnil.
+Lemma eq_nil A (v: Vector.t A 0): v = Vector.nil.
 Proof.
-  cut (forall n (v: vector A n), match n return vector A n -> Prop with 0 => fun v => v = Vnil | _ => fun _ => True end v).
+  cut (forall n (v: Vector.t A n), match n return Vector.t A n -> Prop with 0 => fun v => v = Vector.nil | _ => fun _ => True end v).
     intros.
     apply (H 0 v).
   clear v; destruct v; auto.
 Qed.
 
-Lemma eq_cons A n (v: vector A (S n)): v = Vcons (head v) (tail v).
+Lemma eq_cons A n (v: Vector.t A (S n)): v = Vector.cons (head v) (tail v).
 Proof.
-  cut (forall n (v: vector A n),
-      match n return vector A n -> Prop with
+  cut (forall n (v: Vector.t A n),
+      match n return Vector.t A n -> Prop with
       | 0 => fun _ => True
-      | S m' => fun w => w = Vcons (head w) (tail w)
+      | S m' => fun w => w = Vector.cons (head w) (tail w)
       end v).
     intros.
     apply (H (S n) v).
   clear v; destruct v; auto.
 Qed.
 
-Lemma Vcons_eq A (h h': A) n (t t': vector A n): h = h' -> t = t' -> Vcons h t = Vcons h' t'.
+Lemma Vcons_eq A (h h': A) n (t t': Vector.t A n): h = h' -> t = t' -> Vector.cons h t = Vector.cons h' t'.
 Proof. intros. subst. reflexivity. Qed.
 
-Lemma Vcons_eq_inv A (h h': A) n (t t': vector A n): Vcons h t = Vcons h' t' -> h = h' /\ t = t'.
+Lemma Vcons_eq_inv A (h h': A) n (t t': Vector.t A n): Vector.cons h t = Vector.cons h' t' -> h = h' /\ t = t'.
 Proof with auto.
   intros.
   split...
-    replace h with (head (Vcons h t))...
-    replace h' with (head (Vcons h' t'))...
+    replace h with (head (Vector.cons h t))...
+    replace h' with (head (Vector.cons h' t'))...
     rewrite H...
-  replace t with (tail (Vcons h t))...
-  replace t' with (tail (Vcons h' t'))...
+  replace t with (tail (Vector.cons h t))...
+  replace t' with (tail (Vector.cons h' t'))...
   rewrite H...
 Qed.
 
 (* conversion to/from list *)
 
-Fixpoint to_list X (n: nat) (v: vector X n) {struct v}: List.list X :=
+Fixpoint to_list X (n: nat) (v: Vector.t X n) {struct v}: List.list X :=
   match v with
-  | Vnil => List.nil | Vcons x _ v' => List.cons x (to_list v')
+  | Vector.nil => List.nil | Vector.cons x _ v' => List.cons x (to_list v')
   end.
 
-Fixpoint from_list A (l: List.list A): vector A (List.length l) :=
-  match l return vector A (List.length l) with
-  | List.nil => Vnil | List.cons h t => Vcons h (from_list t)
+Fixpoint from_list A (l: List.list A): Vector.t A (List.length l) :=
+  match l return Vector.t A (List.length l) with
+  | List.nil => Vector.nil | List.cons h t => Vector.cons h (from_list t)
   end.
 
-Coercion to_list: vector >-> List.list.
-Coercion from_list: List.list >-> vector.
+Coercion to_list: Vector.t >-> List.list.
+Coercion from_list: List.list >-> Vector.t.
 
 Lemma list_round_trip A (l: List.list A): to_list (from_list l) = l.
 Proof with try reflexivity. induction l... simpl. rewrite IHl... Qed.
 
-Lemma vec_round_trip (X T: Set) (n : nat) (v : vector X n) (f: forall n, vector X n -> T):
+Lemma vec_round_trip (X T: Set) (n : nat) (v : Vector.t X n) (f: forall n, Vector.t X n -> T):
   (f _ (from_list (to_list v))) = f _ v.
 Proof with auto.
   revert f.
   induction v...
   intros.
   simpl.
-  apply (IHv (fun (m: nat) (w: vector X m) => f (S m) (Vcons a w))).
+  apply (IHv (fun (m: nat) (w: Vector.t X m) => f (S m) (Vector.cons h w))).
 Qed.
 
-Lemma eq_as_lists X n (x y: vector X n): to_list x = to_list y -> x = y.
+Lemma eq_as_lists X n (x y: Vector.t X n): to_list x = to_list y -> x = y.
 Proof with auto.
   induction n; intros.
     rewrite (eq_nil x), (eq_nil y)...
@@ -100,7 +102,7 @@ Proof with auto.
   rewrite (IHn (tail x) (tail y))...
 Qed.
 
-Lemma eq_list A (l: List.list A) (v: vector A (List.length l)): from_list l = v -> l = to_list v.
+Lemma eq_list A (l: List.list A) (v: Vector.t A (List.length l)): from_list l = v -> l = to_list v.
 Proof with auto.
   induction l; simpl; intros.
     rewrite (eq_nil v)...
@@ -111,10 +113,10 @@ Qed.
 
 (* simultaneous induction over two vectors *)
 
-Lemma double_rect A B (P: forall n, vector A n -> vector B n -> Prop):
-  P 0 Vnil Vnil ->
-  (forall n (v: vector A n) (w: vector B n) (x: A) (y: B), P n v w -> P (S n) (Vcons x v) (Vcons y w)) ->
-  forall n (v: vector A n) (w: vector B n), P n v w.
+Lemma double_rect A B (P: forall n, Vector.t A n -> Vector.t B n -> Prop):
+  P 0 Vector.nil Vector.nil ->
+  (forall n (v: Vector.t A n) (w: Vector.t B n) (x: A) (y: B), P n v w -> P (S n) (Vector.cons x v) (Vector.cons y w)) ->
+  forall n (v: Vector.t A n) (w: Vector.t B n), P n v w.
 Proof.
   induction n; intros.
     rewrite (eq_nil v). rewrite (eq_nil w). auto.
@@ -123,30 +125,30 @@ Qed.
 
 (* misc *)
 
-Lemma length A n (l: vector A n): List.length l = n.
+Lemma length A n (l: Vector.t A n): List.length l = n.
 Proof with auto. induction l... simpl. apply eq_S... Qed.
 
-Fixpoint app A n: vector A n -> forall m, vector A m -> vector A (n + m) :=
-  match n return vector A n -> forall m, vector A m -> vector A (n + m) with
+Fixpoint app A n: Vector.t A n -> forall m, Vector.t A m -> Vector.t A (n + m) :=
+  match n return Vector.t A n -> forall m, Vector.t A m -> Vector.t A (n + m) with
   | 0 => fun _ _ w => w
-  | S n' => fun v _ w => Vcons (head v) (app (tail v) w)
+  | S n' => fun v _ w => Vector.cons (head v) (app (tail v) w)
   end.
 
 (* vmap *)
 
-Fixpoint map X Y (f: X -> Y) (n: nat) (v: vector X n): vector Y n :=
+Fixpoint map X Y (f: X -> Y) (n: nat) (v: Vector.t X n): Vector.t Y n :=
   match v with
-  | Vnil => @Vnil Y
-  | Vcons h _ t => Vcons (f h) (map f t)
+  | Vector.nil => @Vector.nil Y
+  | Vector.cons h _ t => Vector.cons (f h) (map f t)
   end.
 
-(*Fixpoint map X Y (f: X -> Y) (n: nat): vector X n -> vector Y n :=
+(*Fixpoint map X Y (f: X -> Y) (n: nat): Vector.t X n -> Vector.t Y n :=
   match n with
-  | 0 => fun _ => Vnil Y
-  | S n' => fun v => Vcons (f (head v)) (map f (tail v))
+  | 0 => fun _ => Vector.nil Y
+  | S n' => fun v => Vector.cons (f (head v)) (map f (tail v))
   end.*)
 
-Lemma map_map X Y Z (f: X -> Y) (g: Y -> Z) (n: nat) (v: vector X n):
+Lemma map_map X Y Z (f: X -> Y) (g: Y -> Z) (n: nat) (v: Vector.t X n):
   map g (map f v) = map (g ∘ f) v.
 Proof with auto.
   induction v...
@@ -154,19 +156,19 @@ Proof with auto.
   rewrite IHv...
 Qed.
 
-Lemma map_ext X Y (f g: X -> Y) (e: ext_eq f g) (n: nat) (v: vector X n):
+Lemma map_ext X Y (f g: X -> Y) (e: ext_eq f g) (n: nat) (v: Vector.t X n):
   map f v = map g v.
 Proof with auto.
   induction v...
   simpl.
   rewrite IHv.
-  rewrite (e a)...
+  rewrite (e h)...
 Qed. (* todo: as a morphism *)
 
-Lemma In_map A B (f: A -> B) (a: A) n (v: vector A n): List.In a v -> List.In (f a) (map f v).
+Lemma In_map A B (f: A -> B) (a: A) n (v: Vector.t A n): List.In a v -> List.In (f a) (map f v).
 Proof. induction v; intros; inversion_clear H; [left; subst | right]; auto. Qed.
 
-Lemma List_map A B n (l: vector A n) (f: A -> B): List.map f l = to_list (map f l).
+Lemma List_map A B n (l: Vector.t A n) (f: A -> B): List.map f l = to_list (map f l).
 Proof with auto.
   induction l...
   simpl.
@@ -250,17 +252,17 @@ Lemma natBelow_S_inv' (n: nat) (P: natBelow (S n) -> Type):
 Proof. intros. destruct (natBelow_S_inv x); [destruct s | idtac]; subst; auto. Qed.
   (* maybe it would be nicer to have this one as the primitive, and natBelow_S_inv above as the derived one *)
 
-Fixpoint nth X (n: nat) (v: vector X n): natBelow n -> X :=
+Fixpoint nth X (n: nat) (v: Vector.t X n): natBelow n -> X :=
   match v with
-  | Vnil => fun nb => natBelow0_rect nb _
-  | Vcons h k t => fun nb => natBelow_S_bla nb h (nth t)
+  | Vector.nil => fun nb => natBelow0_rect nb _
+  | Vector.cons h k t => fun nb => natBelow_S_bla nb h (nth t)
   end.
 
-Lemma nth_0 A n (v: vector A (S n)):
+Lemma nth_0 A n (v: Vector.t A (S n)):
   nth v (nb0 n) = head v.
 Proof. intros. rewrite (eq_cons v). reflexivity. Qed.
 
-Lemma nth_S A p (v: vector A (S p)) (n: natBelow p):
+Lemma nth_S A p (v: Vector.t A (S p)) (n: natBelow p):
   nth v (Snb n) = nth (tail v) n.
 Proof.
   intros.
@@ -271,7 +273,7 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma nth_map A B (f: A -> B) n i (v: vector A n):
+Lemma nth_map A B (f: A -> B) n i (v: Vector.t A n):
   nth (map f v) i = f (nth v i).
 Proof with auto.
   induction v.
@@ -299,10 +301,10 @@ Proof.
   omega.
 Qed.
 
-Lemma ext_nth A n (x y: vector A n): ext_eq (nth x) (nth y) -> x = y.
+Lemma ext_nth A n (x y: Vector.t A n): ext_eq (nth x) (nth y) -> x = y.
 Proof with auto.
   revert n x y.
-  apply (double_rect (fun n (x y: vector A n) => ext_eq (nth x) (nth y) -> x = y))...
+  apply (double_rect (fun n (x y: Vector.t A n) => ext_eq (nth x) (nth y) -> x = y))...
   intros.
   cset (H0 (nb0 n)).
   simpl in H1.
@@ -313,7 +315,7 @@ Proof with auto.
   repeat rewrite nth_S in H1...
 Qed.
 
-Lemma In_nth A n i (v: vector A n): List.In (nth v i) v.
+Lemma In_nth A n i (v: Vector.t A n): List.In (nth v i) v.
 Proof with auto.
   induction i using natBelow_rect in v |- *.
     simpl.
@@ -329,7 +331,7 @@ Proof with auto.
   rewrite nth_S...
 Qed.
 
-Lemma to_list_app A n (v: vector A n) m (w: vector A m):
+Lemma to_list_app A n (v: Vector.t A n) m (w: Vector.t A m):
   to_list (app v w) = List.app (to_list v) (to_list w).
 Proof with auto.
   induction n.
@@ -341,7 +343,7 @@ Proof with auto.
   rewrite IHn...
 Qed.
 
-Lemma In_vec_inv A a n (v: vector A n): List.In a v -> exists i, a = nth v i.
+Lemma In_vec_inv A a n (v: Vector.t A n): List.In a v -> exists i, a = nth v i.
 Proof with auto.
   induction v.
     intros.
@@ -359,19 +361,19 @@ Lemma nb_val_eq_rec_r (k u: nat) (n: natBelow u) (h: k = u):
   nb_val (eq_rec_r natBelow n h) = nb_val n.
 Proof. intros. unfold eq_rec_r, eq_rec, eq_rect. case (sym_eq h). auto. Qed.
 
-Fixpoint take A n: forall m, vector A (n + m) -> vector A n :=
-  match n return forall m, vector A (n + m) -> vector A n with
-  | 0 => fun _ _ => Vnil
-  | S n' => fun m v => Vcons (head v) (take n' m (tail v))
+Fixpoint take A n: forall m, Vector.t A (n + m) -> Vector.t A n :=
+  match n return forall m, Vector.t A (n + m) -> Vector.t A n with
+  | 0 => fun _ _ => Vector.nil
+  | S n' => fun m v => Vector.cons (head v) (take n' m (tail v))
   end.
 
-Fixpoint drop A n: forall m, vector A (n + m) -> vector A m :=
-  match n return forall m, vector A (n + m) -> vector A m with
+Fixpoint drop A n: forall m, Vector.t A (n + m) -> Vector.t A m :=
+  match n return forall m, Vector.t A (n + m) -> Vector.t A m with
   | 0 => fun m v => v
   | S n' => fun m v => drop n' m (tail v)
   end.
 
-Lemma split A n m (v: vector A (n + m)): v = app (take n m v) (drop n m v).
+Lemma split A n m (v: Vector.t A (n + m)): v = app (take n m v) (drop n m v).
 Proof with auto.
   induction n...
   intros.
@@ -380,7 +382,7 @@ Proof with auto.
   apply eq_cons.
 Qed.
 
-Lemma eq_app_inv A n m (a b: vector A n) (c d: vector A m): app a c = app b d -> a = b /\ c = d.
+Lemma eq_app_inv A n m (a b: Vector.t A n) (c d: Vector.t A m): app a c = app b d -> a = b /\ c = d.
 Proof with auto.
   induction n in m, a, b, c, d |- *; simpl; intros.
     rewrite (eq_nil a).
@@ -396,45 +398,45 @@ Qed.
 
 (* remove *)
 
-Definition remove (T: Set) (n: nat) (v: vector T (S n)) (nb: natBelow (S n)): vector T n :=
+Definition remove (T: Set) (n: nat) (v: Vector.t T (S n)) (nb: natBelow (S n)): Vector.t T n :=
   natBelow_rect_S
-    (fun (n0: nat) (_: natBelow (S n0)) => vector T (S n0) -> vector T n0)
+    (fun (n0: nat) (_: natBelow (S n0)) => Vector.t T (S n0) -> Vector.t T n0)
     (fun p => @tail p _)
-    (fun v p H v0 => Vcons (head v0) (H (tail v0))) nb v.
+    (fun v p H v0 => Vector.cons (head v0) (H (tail v0))) nb v.
 
 (* permutations *)
 
-Inductive Permutation (A: Type): forall n, vector A n -> vector A n -> Prop :=
-  | perm_nil: Permutation Vnil Vnil
-  | perm_skip (x: A) n (v v': vector A n): Permutation v v' -> Permutation (Vcons x v) (Vcons x v')
-  | perm_swap (x y: A) n (l: vector A n): Permutation (Vcons y (Vcons x l)) (Vcons x (Vcons y l))
-  | perm_trans n (l l' l'': vector A n): Permutation l l' -> Permutation l' l'' -> Permutation l l''.
+Inductive Permutation (A: Type): forall n, Vector.t A n -> Vector.t A n -> Prop :=
+  | perm_nil: Permutation Vector.nil Vector.nil
+  | perm_skip (x: A) n (v v': Vector.t A n): Permutation v v' -> Permutation (Vector.cons x v) (Vector.cons x v')
+  | perm_swap (x y: A) n (l: Vector.t A n): Permutation (Vector.cons y (Vector.cons x l)) (Vector.cons x (Vector.cons y l))
+  | perm_trans n (l l' l'': Vector.t A n): Permutation l l' -> Permutation l' l'' -> Permutation l l''.
 
 Hint Resolve perm_nil.
 Hint Resolve perm_skip.
 Hint Resolve perm_swap.
 
-Lemma perm_sym (X: Set) n (a b: vector X n): Permutation a b -> Permutation b a.
+Lemma perm_sym (X: Set) n (a b: Vector.t X n): Permutation a b -> Permutation b a.
 Proof with auto. intros p. induction p... apply perm_trans with l'... Qed.
 
-Lemma perm_refl (X: Set) n (v: vector X n): Permutation v v.
+Lemma perm_refl (X: Set) n (v: Vector.t X n): Permutation v v.
 Proof. induction v; auto. Qed.
 
-Lemma List_Permutation (X: Set) n (a b: vector X n): Permutation a b -> Permutation.Permutation a b.
+Lemma List_Permutation (X: Set) n (a b: Vector.t X n): Permutation a b -> Permutation.Permutation a b.
 Proof with eauto.
   intros p.
   induction p; simpl...
 Qed.
 
-Lemma remove_head (T: Set) p (v: vector T (S p)):
+Lemma remove_head (T: Set) p (v: Vector.t T (S p)):
   remove v (mkNatBelow 0 p) = tail v.
 Proof. reflexivity. Qed.
 
-Lemma remove_tail (T: Set) n p (v: vector T (S (S (n + p)))):
-  remove v (mkNatBelow (S n) p) = Vcons (head v) (remove (tail v) (mkNatBelow n p)).
+Lemma remove_tail (T: Set) n p (v: Vector.t T (S (S (n + p)))):
+  remove v (mkNatBelow (S n) p) = Vector.cons (head v) (remove (tail v) (mkNatBelow n p)).
 Proof. reflexivity. Qed.
 
-Lemma in_remove (T: Set) x n (i: natBelow (S n)) (v: vector T (S n)):
+Lemma in_remove (T: Set) x n (i: natBelow (S n)) (v: Vector.t T (S n)):
   List.In x v -> x <> nth v i -> List.In x (remove v i).
 Proof with auto.
   revert v.
@@ -463,7 +465,7 @@ Proof with auto.
   simpl in H1...
 Qed.
 
-Lemma remove_map (A B: Set) (f: A -> B) n (i: natBelow (S n)) (v: vector A (S n)):
+Lemma remove_map (A B: Set) (f: A -> B) n (i: natBelow (S n)) (v: Vector.t A (S n)):
   remove (map f v) i = map f (remove v i).
 Proof with reflexivity.
   revert v.
@@ -486,8 +488,8 @@ Proof with reflexivity.
   reflexivity.
 Qed.
 
-Lemma remove_perm (T: Set) n (nb: natBelow (S n)) (v: vector T (S n)):
-  Permutation (Vcons (nth v nb) (remove v nb)) v.
+Lemma remove_perm (T: Set) n (nb: natBelow (S n)) (v: Vector.t T (S n)):
+  Permutation (Vector.cons (nth v nb) (remove v nb)) v.
 Proof with auto.
   revert v.
   pattern n, nb.
@@ -507,15 +509,15 @@ Proof with auto.
   cset' (remove (tail v0) (mkNatBelow v p)).
   fold (Snb (mkNatBelow v p)).
   rewrite nth_S.
-  cut (Permutation (Vcons (nth (tail v0) (mkNatBelow v p)) (Vcons (head v0) H)) (Vcons (head v0) (tail v0))).
+  cut (Permutation (Vector.cons (nth (tail v0) (mkNatBelow v p)) (Vector.cons (head v0) H)) (Vector.cons (head v0) (tail v0))).
     rewrite <- eq_cons.
     intros...
-  apply perm_trans with (Vcons (head v0) (Vcons (nth (tail v0) (mkNatBelow v p)) H))...
+  apply perm_trans with (Vector.cons (head v0) (Vector.cons (nth (tail v0) (mkNatBelow v p)) H))...
 Qed.
 
 Require Import skip_list.
 
-Lemma SkipList_tail (A: Set) n (v: vector A (S n)): SkipList (tail v) v.
+Lemma SkipList_tail (A: Set) n (v: Vector.t A (S n)): SkipList (tail v) v.
 Proof.
   intros.
   rewrite (eq_cons v).
@@ -524,7 +526,7 @@ Proof.
   apply SkipList_refl.
 Qed.
 
-Lemma SkipList_remove (A: Set) n (nb: natBelow (S n)) (l: vector A (S n)):
+Lemma SkipList_remove (A: Set) n (nb: natBelow (S n)) (l: Vector.t A (S n)):
   SkipList (remove l nb) l.
 Proof.
   revert l.
@@ -554,7 +556,7 @@ Proof.
   apply SkipList_refl.
 Qed.
 
-Definition remove_In (X: Set) n (v: vector X (S n)) x i (p: List.In x (remove v i)): List.In x v
+Definition remove_In (X: Set) n (v: Vector.t X (S n)) x i (p: List.In x (remove v i)): List.In x v
   := incl_In x p (SkipList_incl (SkipList_remove i v)).
 
 (* nats *)
@@ -568,20 +570,20 @@ Proof.
   apply IHn.
 Defined.
 
-Fixpoint nats (x n: nat) {struct n}: vector (natBelow (x + n)) n :=
-  match n as n0 return vector (natBelow (x + n0)) n0 with
-  | 0 => Vnil
+Fixpoint nats (x n: nat) {struct n}: Vector.t (natBelow (x + n)) n :=
+  match n as n0 return Vector.t (natBelow (x + n0)) n0 with
+  | 0 => Vector.nil
   | S n0 => map (fun d => eq_rec_r natBelow d (trans_plus_n_Sm x n0))
-    (Vcons (mkNatBelow x n0) (nats (S x) n0))
+    (Vector.cons (mkNatBelow x n0) (nats (S x) n0))
   end.
 
-Definition nb_nats (x n: nat): vector nat n := map nb_val (nats x n).
+Definition nb_nats (x n: nat): Vector.t nat n := map nb_val (nats x n).
 
 Lemma nats_S (x n: nat): nats x (S n) =
-  map (fun d => eq_rec_r natBelow d (trans_plus_n_Sm x n)) (Vcons (mkNatBelow x n) (nats (S x) n)).
+  map (fun d => eq_rec_r natBelow d (trans_plus_n_Sm x n)) (Vector.cons (mkNatBelow x n) (nats (S x) n)).
 Proof. reflexivity. Qed.
 
-Lemma nb_nats_S (x n: nat): nb_nats x (S n) = Vcons x (nb_nats (S x) n).
+Lemma nb_nats_S (x n: nat): nb_nats x (S n) = Vector.cons x (nb_nats (S x) n).
 Proof with reflexivity.
   unfold nb_nats.
   intros.
@@ -683,7 +685,7 @@ Proof with auto.
   apply In_nb_nats.
 Qed.
 
-Lemma In_as_nb_val n (x: natBelow n) m (l: vector (natBelow n) m):
+Lemma In_as_nb_val n (x: natBelow n) m (l: Vector.t (natBelow n) m):
   List.In (nb_val x) (map nb_val l) -> List.In x l.
 Proof with auto.
   intros.
@@ -705,12 +707,12 @@ Proof.
   assumption.
 Qed.
 
-Lemma S_rect A n (P: vector A (S n) -> Type):
-  (forall h t, P (Vcons h t)) -> forall v, P v.
+Lemma S_rect A n (P: Vector.t A (S n) -> Type):
+  (forall h t, P (Vector.cons h t)) -> forall v, P v.
 Proof. intros. rewrite (eq_cons v). apply X. Qed.
 
-Lemma In_inv_perm (X: Set) (x: X) n (v: vector X (S n)):
-  List.In x v -> exists v': vector X n, Permutation (Vcons x v') v.
+Lemma In_inv_perm (X: Set) (x: X) n (v: Vector.t X (S n)):
+  List.In x v -> exists v': Vector.t X n, Permutation (Vector.cons x v') v.
 Proof with auto.
   induction n in v |- *.
     rewrite (eq_cons v).
@@ -728,16 +730,16 @@ Proof with auto.
   simpl in H.
   destruct H.
     subst.
-    exists (Vcons h0 t).
+    exists (Vector.cons h0 t).
     apply perm_refl.
-  destruct (IHn (Vcons h0 t) H).
-  exists (Vcons h x0).
-  apply perm_trans with (Vcons h (Vcons x x0)).
+  destruct (IHn (Vector.cons h0 t) H).
+  exists (Vector.cons h x0).
+  apply perm_trans with (Vector.cons h (Vector.cons x x0)).
     apply perm_swap.
   apply perm_skip...
 Qed.
 
-Lemma NoDup_incl_Permutation (A: Set) n (a b: vector A n):
+Lemma NoDup_incl_Permutation (A: Set) n (a b: Vector.t A n):
   List.NoDup a -> List.incl a b -> Permutation a b.
 Proof with auto.
   induction n.
@@ -748,15 +750,15 @@ Proof with auto.
   pattern a. apply S_rect. clear a. intros ha ta.
   pattern b. apply S_rect. clear b. intros hb tb.
   intros.
-  assert (List.In ha (Vcons hb tb)).
+  assert (List.In ha (Vector.cons hb tb)).
     apply H0.
     left...
-  destruct (In_inv_perm ha (Vcons hb tb) H1).
-  apply perm_trans with (Vcons ha x)...
+  destruct (In_inv_perm ha (Vector.cons hb tb) H1).
+  apply perm_trans with (Vector.cons ha x)...
   apply perm_skip.
   apply IHn.
     inversion_clear H...
-  cut (List.incl ta (Vcons ha x)).
+  cut (List.incl ta (Vector.cons ha x)).
     intros.
     simpl in H3.
     do 2 intro.
@@ -764,7 +766,7 @@ Proof with auto.
     subst.
     inversion_clear H.
     elimtype False...
-  apply List.incl_tran with (to_list (Vcons hb tb)).
+  apply List.incl_tran with (to_list (Vector.cons hb tb)).
     do 2 intro.
     apply H0.
     right...
@@ -838,11 +840,11 @@ Proof with auto. (* todo: proof way too long *)
   apply (IHy (S x)).
 Qed.
 
-Lemma tail_map (A B: Set) (f: A -> B) n (l: vector A (S n)):
+Lemma tail_map (A B: Set) (f: A -> B) n (l: Vector.t A (S n)):
   tail (map f l) = map f (tail l).
 Proof. intros. rewrite (eq_cons l). reflexivity. Qed.
 
-Lemma tail_cons (A: Set) (a: A) n (l: vector A n): tail (Vcons a l) = l.
+Lemma tail_cons (A: Set) (a: A) n (l: Vector.t A n): tail (Vector.cons a l) = l.
 Proof. reflexivity. Qed.
 
 Lemma nth_nats m (i: natBelow m) n: nb_val (nth (nats n m) i) = n + i.
@@ -908,7 +910,7 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma map_app (A B: Type) (f: A -> B) n (v: vector A n) m (w: vector A m):
+Lemma map_app (A B: Type) (f: A -> B) n (v: Vector.t A n) m (w: Vector.t A m):
   map f (app v w) = app (map f v) (map f w).
 Proof with reflexivity.
   induction n; intros.
@@ -919,7 +921,7 @@ Proof with reflexivity.
 Qed.
 
 
-Lemma app_eq A m (x x': vector A m) n (y y': vector A n): x = x' -> y = y' -> app x y = app x' y'.
+Lemma app_eq A m (x x': Vector.t A m) n (y y': Vector.t A n): x = x' -> y = y' -> app x y = app x' y'.
 Proof. intros. subst. reflexivity. Qed.
 
 Lemma nats_plus x n y:
@@ -984,21 +986,21 @@ Qed.
 
 (* misc *)
 
-Lemma map_cons A B (f: A -> B) (h: A) n (t: vector A n): map f (Vcons h t) = Vcons (f h) (map f t).
+Lemma map_cons A B (f: A -> B) (h: A) n (t: Vector.t A n): map f (Vector.cons h t) = Vector.cons (f h) (map f t).
 Proof. reflexivity. Qed.
 
-Lemma Permutation_mapping (X: Set) n (a b: vector X n): Permutation a b ->
-  exists l: vector (natBelow n) n, (forall x, List.In x l) /\ map (nth b) l = a.
+Lemma Permutation_mapping (X: Set) n (a b: Vector.t X n): Permutation a b ->
+  exists l: Vector.t (natBelow n) n, (forall x, List.In x l) /\ map (nth b) l = a.
 Proof with auto with arith.
   intros p.
   induction p.
-        exists Vnil.
+        exists Vector.nil.
         split...
         intros.
         inversion x.
       destruct IHp.
       destruct H.
-      exists (Vcons (nb0 n) (map (@Snb _) x0)).
+      exists (Vector.cons (nb0 n) (map (@Snb _) x0)).
       split.
         intros.
         destruct (natBelow_S_inv x1).
@@ -1017,7 +1019,7 @@ Proof with auto with arith.
       intro.
       unfold compose.
       rewrite nth_S...
-    exists (Vcons (Snb (nb0 n)) (Vcons (nb0 (S n)) (nats 2 n))).
+    exists (Vector.cons (Snb (nb0 n)) (Vector.cons (nb0 (S n)) (nats 2 n))).
     split.
       intros.
       simpl.
@@ -1036,7 +1038,7 @@ Proof with auto with arith.
       subst...
     repeat rewrite map_cons.
     f_equal.
-    apply (f_equal (@Vcons _ x n)).
+    apply (f_equal (@Vector.cons _ x n)).
     apply ext_nth.
     intro.
     rewrite nth_map.
@@ -1095,15 +1097,15 @@ Section contents.
 
   (* Vsorted *)
 
-  Inductive sorted: forall n, vector X n -> Prop := (* Coq.Sorting's definition sucks *)
-    | sorted_nil: sorted Vnil
-    | sorted_one x: sorted (Vcons x Vnil)
-    | sorted_more (a b: X) n (t: vector X n):
-        Xle a b -> sorted (Vcons b t) -> sorted (Vcons a (Vcons b t)).
+  Inductive sorted: forall n, Vector.t X n -> Prop := (* Coq.Sorting's definition sucks *)
+    | sorted_nil: sorted Vector.nil
+    | sorted_one x: sorted (Vector.cons x Vector.nil)
+    | sorted_more (a b: X) n (t: Vector.t X n):
+        Xle a b -> sorted (Vector.cons b t) -> sorted (Vector.cons a (Vector.cons b t)).
 
   Hint Constructors sorted.
 
-  Lemma sorted_cons x n (v: vector X (S n)): Xle x (head v) -> sorted v -> sorted (Vcons x v).
+  Lemma sorted_cons x n (v: Vector.t X (S n)): Xle x (head v) -> sorted v -> sorted (Vector.cons x v).
   Proof with auto.
     intros.
     rewrite (eq_cons v).
@@ -1111,7 +1113,7 @@ Section contents.
     rewrite <- eq_cons...
   Qed.
 
-  Lemma sorted_cons' x n (v: vector X n): (forall y, List.In y v -> Xle x y) -> sorted v -> sorted (Vcons x v).
+  Lemma sorted_cons' x n (v: Vector.t X n): (forall y, List.In y v -> Xle x y) -> sorted v -> sorted (Vector.cons x v).
   Proof with auto.
     induction v; intros.
       apply sorted_one.
@@ -1119,13 +1121,13 @@ Section contents.
     apply H. left...
   Qed.
 
-  Lemma sorted_cons_inv x n (v: vector X (S n)): sorted (Vcons x v) -> Xle x (head v).
+  Lemma sorted_cons_inv x n (v: Vector.t X (S n)): sorted (Vector.cons x v) -> Xle x (head v).
   Proof. intros. rewrite (eq_cons v) in H. inversion_clear H. assumption. Qed.
 
-  Lemma sorted_tail x n (v: vector X n): sorted (Vcons x v) -> sorted v.
+  Lemma sorted_tail x n (v: Vector.t X n): sorted (Vector.cons x v) -> sorted v.
   Proof. intros. inversion_clear H; auto. Qed.
 
-  Lemma sorted_cons_inv' (x: X) n (xs: vector X n): sorted (Vcons x xs) ->
+  Lemma sorted_cons_inv' (x: X) n (xs: Vector.t X n): sorted (Vector.cons x xs) ->
     forall x', List.In x' xs -> Xle x x'.
   Proof with auto.
     induction xs.
@@ -1146,7 +1148,7 @@ Section contents.
       apply sorted_one.
     intros.
     apply sorted_more.
-      apply (preord_trans _ _ XO) with a...
+      apply (preord_trans _ _ XO) with h...
         apply (sorted_cons_inv H).
       apply (sorted_cons_inv (sorted_tail H)).
     apply (sorted_tail (sorted_tail H)).
@@ -1176,7 +1178,7 @@ Section contents.
     simpl...
   Qed.
 
-  Lemma sorted_le_indices_le_values n (v: vector X n): sorted v ->
+  Lemma sorted_le_indices_le_values n (v: Vector.t X n): sorted v ->
     forall (i j: natBelow n), i <= j -> Xle (nth v i) (nth v j).
   Proof with auto with arith.
     intros s.
@@ -1194,7 +1196,7 @@ Section contents.
         rewrite nth_0.
         intros.
         rewrite nth_S.
-        apply (preord_trans _ _ XO) with (nth (Vcons b t) (nb0 _))...
+        apply (preord_trans _ _ XO) with (nth (Vector.cons b t) (nb0 _))...
       rewrite val_Snb.
       simpl @nb_val.
       intros.
@@ -1204,7 +1206,7 @@ Section contents.
     do 2 rewrite nth_S...
   Qed.
 
-  Lemma sorted_lt_values_lt_indices n (v: vector X n): sorted v ->
+  Lemma sorted_lt_values_lt_indices n (v: Vector.t X n): sorted v ->
     forall i j, Xlt (nth v i) (nth v j) -> i < j.
   Proof with auto with arith.
     intros s.
@@ -1231,7 +1233,7 @@ Section contents.
       intros.
       elimtype False.
       apply (Xle_nlt H).
-      apply Xle_lt_trans with (nth (Vcons b t) m)...
+      apply Xle_lt_trans with (nth (Vector.cons b t) m)...
       apply (sorted_le_indices_le_values s (nb0 _) m)...
     intro.
     do 2 rewrite nth_S.
@@ -1242,30 +1244,30 @@ Section contents.
 
   Variable XleDec: forall x y, { Xle x y } + { Xle y x }.
 
-  Fixpoint insert_ordered (x: X) n: vector X n -> vector X (S n) :=
-    match n return vector X n -> vector X (S n) with
-    | 0 => fun _ => Vcons x Vnil
+  Fixpoint insert_ordered (x: X) n: Vector.t X n -> Vector.t X (S n) :=
+    match n return Vector.t X n -> Vector.t X (S n) with
+    | 0 => fun _ => Vector.cons x Vector.nil
     | S n' => fun v => if XleDec x (head v)
-        then Vcons x v
-        else Vcons (head v) (insert_ordered x (tail v))
+        then Vector.cons x v
+        else Vector.cons (head v) (insert_ordered x (tail v))
     end.
 
   Hint Immediate perm_refl.
 
-  Lemma insert_ordered_permutes x n (v: vector X n): Permutation (insert_ordered x v) (Vcons x v).
+  Lemma insert_ordered_permutes x n (v: Vector.t X n): Permutation (insert_ordered x v) (Vector.cons x v).
   Proof with auto.
     induction v; simpl...
-    destruct (XleDec x a)...
-    apply perm_trans with (Vcons a (Vcons x v))...
+    destruct (XleDec x h)...
+    apply perm_trans with (Vector.cons h (Vector.cons x v))...
   Qed.
 
-  Lemma insert_ordered_preserves_sorted n x (v: vector X n): sorted v -> sorted (insert_ordered x v).
+  Lemma insert_ordered_preserves_sorted n x (v: Vector.t X n): sorted v -> sorted (insert_ordered x v).
   Proof with auto.
     induction v.
       simpl...
     simpl.
     intros.
-    destruct (XleDec x a).
+    destruct (XleDec x h).
       apply sorted_more...
     destruct n.
       rewrite (eq_nil v).
@@ -1285,13 +1287,13 @@ Section contents.
     apply (sorted_cons_inv H).
   Qed.
 
-  Fixpoint insertion_sort n: vector X n -> vector X n :=
-    match n return vector X n -> vector X n with
-    | 0 => fun _ => Vnil
+  Fixpoint insertion_sort n: Vector.t X n -> Vector.t X n :=
+    match n return Vector.t X n -> Vector.t X n with
+    | 0 => fun _ => Vector.nil
     | S n' => fun v => insert_ordered (head v) (insertion_sort (tail v))
     end.
 
-  Lemma insertion_sort_sorts n (l: vector X n): sorted (insertion_sort l).
+  Lemma insertion_sort_sorts n (l: Vector.t X n): sorted (insertion_sort l).
   Proof with auto.
     induction n; intros.
       rewrite (eq_nil l)...
@@ -1300,11 +1302,11 @@ Section contents.
     apply insert_ordered_preserves_sorted...
   Qed.
 
-  Lemma insertion_sort_permutes n (l: vector X n): Permutation (insertion_sort l) l.
+  Lemma insertion_sort_permutes n (l: Vector.t X n): Permutation (insertion_sort l) l.
   Proof with auto.
     induction l...
     simpl.
-    apply perm_trans with (Vcons a (insertion_sort l))...
+    apply perm_trans with (Vector.cons h (insertion_sort l))...
     apply insert_ordered_permutes.
   Qed.
 

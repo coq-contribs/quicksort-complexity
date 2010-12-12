@@ -16,7 +16,7 @@ Require Import monoid_tree_monad.
 Require qs_definitions.
 Require fix_measure_utils.
 Require Import nat_below.
-Require Import Bvector.
+Require Vector.
 
 Import qs_definitions.mon_nondet.
 
@@ -26,18 +26,18 @@ Section contents.
 
   Variables (X: Set) (pick: forall T: Set, ne_list.L T -> M T) (cmp: X -> X -> M comparison).
 
-  Definition lowRecPart n (t: vector X (S n)) (i: natBelow (S n)) (part: {p: Partitioning X |
+  Definition lowRecPart n (t: Vector.t X (S n)) (i: natBelow (S n)) (part: {p: Partitioning X |
           Permutation.Permutation (p Eq ++ p Lt ++ p Gt) (vec.remove t i)}) :=
     low <- qs cmp pick (proj1_sig part Lt);
     upp <- qs cmp pick (proj1_sig part Gt);
     ret (low ++ vec.nth t i :: proj1_sig part Eq ++ upp).
 
-  Definition partitionPart n (t: vector X (S n)) (i: natBelow (S n))
+  Definition partitionPart n (t: Vector.t X (S n)) (i: natBelow (S n))
     := partition M cmp (vec.nth t i) (vec.remove t i) >>= lowRecPart t i.
 
-  Definition selectPivotPart n (t: vector X (S n)) := pick (ne_list.from_vec (vec.nats 0 (S n))) >>= partitionPart t.
+  Definition selectPivotPart n (t: Vector.t X (S n)) := pick (ne_list.from_vec (vec.nats 0 (S n))) >>= partitionPart t.
 
-  Lemma selectPivotPart_eq n m (t: vector X (S n)) (t': vector X (S m)): vec.to_list t = vec.to_list t' ->
+  Lemma selectPivotPart_eq n m (t: Vector.t X (S n)) (t': Vector.t X (S m)): vec.to_list t = vec.to_list t' ->
     selectPivotPart t = selectPivotPart t'.
   Proof with auto.
     intros.
@@ -49,9 +49,9 @@ Section contents.
     rewrite (vec.eq_as_lists t t')...
   Qed.
 
-  Definition body n (v: vector X n) :=
+  Definition body n (v: Vector.t X n) :=
     match v with
-    | Vnil => ret nil
+    | Vector.nil => ret nil
     | l => selectPivotPart l
     end.
 
@@ -105,7 +105,7 @@ Section contents.
     subst...
   Qed.
 
-  Lemma toBody_cons (n: nat) (v: vector X (S n)): body v = selectPivotPart v.
+  Lemma toBody_cons (n: nat) (v: Vector.t X (S n)): body v = selectPivotPart v.
     intros.
     rewrite (vec.eq_cons v).
     simpl.
@@ -114,7 +114,7 @@ Section contents.
 
   Lemma rect (Q: list X -> M (list X) -> Type):
     (Q nil (ret nil)) ->
-    (forall n (v: vector X (S n)), (forall y, length y < S n -> Q y (qs cmp pick y)) -> Q v (selectPivotPart v)) ->
+    (forall n (v: Vector.t X (S n)), (forall y, length y < S n -> Q y (qs cmp pick y)) -> Q v (selectPivotPart v)) ->
       forall x, Q x (qs cmp pick x).
   Proof with auto.
     intros.
@@ -157,7 +157,7 @@ Section contents.
       apply X2.
       rewrite vec.length in H...
     pose proof (X1 (vec.head v) (vec.tail v) X3).
-    pose proof (selectPivotPart_eq (Vcons (vec.head v) (vec.from_list (vec.to_list (vec.tail v)))) (Vcons (vec.head v) (vec.tail v))).
+    pose proof (selectPivotPart_eq (Vector.cons (vec.head v) (vec.from_list (vec.to_list (vec.tail v)))) (Vector.cons (vec.head v) (vec.tail v))).
     rewrite <- H...
     simpl.
     rewrite vec.list_round_trip...

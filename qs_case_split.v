@@ -6,7 +6,7 @@ Require Import Plus.
 Require Import Minus.
 Require Import Lt.
 Require Import Arith.
-Require Import Bvector.
+Require Vector.
 Require Import arith_lems.
 Require Import List.
 Require Import monads.
@@ -37,14 +37,14 @@ Section contents.
     omega.
   Qed.
 
-  Lemma vec_cons_eq_inv X (a c: X) n (b d: vector X n): Vcons a b = Vcons c d -> a = c /\ b =d.
+  Lemma vec_cons_eq_inv X (a c: X) n (b d: Vector.t X n): Vector.cons a b = Vector.cons c d -> a = c /\ b =d.
   Proof with auto.
     intros.
-    cut (vec.head (Vcons a b) = vec.head (Vcons c d) /\ vec.tail (Vcons a b) = vec.tail (Vcons c d))...
+    cut (vec.head (Vector.cons a b) = vec.head (Vector.cons c d) /\ vec.tail (Vector.cons a b) = vec.tail (Vector.cons c d))...
     rewrite H...
   Qed.
 
-  Lemma case_split b: forall i j (X: Set) (f: U.monoid * X -> nat) n (vex: vector (Index ee ol) (S n)) (g: natBelow (S n) -> MonoidMonadTrans.M U.monoid ne_tree_monad.ext X), IndexSeq b vex -> (b <= i)%nat -> (i < j)%nat -> (j < b + S n)%nat -> forall ca cb, 0 <= ca -> 0 <= cb ->
+  Lemma case_split b: forall i j (X: Set) (f: U.monoid * X -> nat) n (vex: Vector.t (Index ee ol) (S n)) (g: natBelow (S n) -> MonoidMonadTrans.M U.monoid ne_tree_monad.ext X), IndexSeq b vex -> (b <= i)%nat -> (i < j)%nat -> (j < b + S n)%nat -> forall ca cb, 0 <= ca -> 0 <= cb ->
     (forall pi, (vec.nth vex pi < i)%nat -> expec f (g pi) <= ca) ->
     (forall pi, (nb_val (vec.nth vex pi) = i)%nat -> expec f (g pi) <= cb) ->
     (forall pi, (i < vec.nth vex pi)%nat ->

@@ -27,7 +27,7 @@ Require Import Fourier.
 Require Import Rbase.
 Require Import skip_list.
 Require Import nat_below.
-Require Import Bvector.
+Require Vector.
 
 Import qs_definitions.mon_nondet.
 
@@ -36,7 +36,7 @@ Section contents.
   Variables (ee: E) (ol: list ee) (i j: Index ee ol).
 
   Variable n: nat.
-  Variable v: vector (Index ee ol) (S n).
+  Variable v: Vector.t (Index ee ol) (S n).
   Variable iltj: (i < j)%nat.
 
   Let flt x0 cr := filter (fun f: Index ee ol => unsum_bool (cmp_cmp (Ecmp (UE ee ol) f (vec.nth v x0)) cr)) (vec.remove v x0).

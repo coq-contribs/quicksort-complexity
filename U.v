@@ -20,7 +20,7 @@ Require Import sort_order.
 Require Import indices.
 Require Import Arith.
 Require Import nat_below.
-Require Import Bvector.
+Require Vector.
 Require ne_tree_monad.
 
 Import mon_nondet.
@@ -88,7 +88,7 @@ Section contents.
     Variable P: list (Index e ol) -> M (list (Index e ol)) -> Prop.
     Hypothesis Pnil: P nil (ret nil).
 
-    Hypothesis Pcons: forall n (v: vector (Index e ol) (S n)),
+    Hypothesis Pcons: forall n (v: Vector.t (Index e ol) (S n)),
       (forall x0 cr, P (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) cr)) (vec.remove v x0)) (qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) cr)) (vec.remove v x0)))) ->
       P v
       (ne_tree.Node
