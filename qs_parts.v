@@ -16,7 +16,7 @@ Require Import monoid_tree_monad.
 Require qs_definitions.
 Require fix_measure_utils.
 Require Import nat_below.
-Require Vector.
+Require Coq.Vectors.Vector.
 
 Import qs_definitions.mon_nondet.
 
@@ -117,8 +117,13 @@ Section contents.
     (forall n (v: Vector.t X (S n)), (forall y, length y < S n -> Q y (qs cmp pick y)) -> Q v (selectPivotPart v)) ->
       forall x, Q x (qs cmp pick x).
   Proof with auto.
-    intros.
-    unfold qs. fold raw_body.
+    intros. 
+    unfold qs.
+    match goal with 
+      |- context C [Fix_sub ?A ?R ?P ?p ?f ?x] =>
+        let folded := context C [ Fix_sub A R P p raw_body x ] in
+          change folded
+    end. 
     apply fix_measure_utils.rect.
       intros.
       apply raw_body_ext.
