@@ -12,11 +12,13 @@ Section contents.
 
   Variable E: Set.
 
+  Unset Elimination Schemes.
+
   Inductive T: Set :=
     | Leaf: E -> T
     | Node: ne_list.L T -> T.
 
-  Reset T_rect.
+  Set Elimination Schemes.
 
   Definition fold (Y: Set) (f: E -> Y) (g: ne_list.L Y -> Y): T -> Y :=
     fix F (t: T) :=
