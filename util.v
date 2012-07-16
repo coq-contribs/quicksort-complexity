@@ -1,4 +1,5 @@
 Set Implicit Arguments.
+Global Set Asymmetric Patterns.
 
 Require Import Relations.
 Require Export Basics.
