@@ -61,8 +61,8 @@ Section contents.
     | h :: t => fun e =>
       i <- pick (ne_list.from_vec (vec.nats 0 (length (h :: t))));
       part <- partition M cmp (vec.nth (h :: t) i) (vec.remove (h :: t) i);
-      low <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Lt) (qs_obligation_1 M (fun l H => qs (exist _ l H)) e i part));
-      upp <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Gt) (qs_obligation_2 M (fun l H => qs (exist _ l H)) e i part low));
+      low <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Lt) (qs_definitions.mon_nondet.qs_obligation_1 M (fun l H => qs (exist _ l H)) e i part));
+      upp <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Gt) (qs_definitions.mon_nondet.qs_obligation_2 M (fun l H => qs (exist _ l H)) e i part low));
       ret (low ++ vec.nth (h :: t) i :: proj1_sig part Eq ++ upp)
     end refl_equal.
 

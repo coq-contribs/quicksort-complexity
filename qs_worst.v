@@ -88,10 +88,10 @@ Definition qs_body (l: list T) (qs0: {l': list T | length l' < length l} -> Simp
   | pivot :: t => fun Heq_l =>
       lower <-
         x <- filter SimplyProfiled (gt SimplyProfiled counted_cmp pivot) t;
-        qs0 (exist _ (proj1_sig x) (qs_obligation_1 SimplyProfiled (fun l H => qs0 (exist _ l H)) Heq_l x));
+        qs0 (exist _ (proj1_sig x) (qs_definitions.mon_det.qs_obligation_1 SimplyProfiled (fun l H => qs0 (exist _ l H)) Heq_l x));
       upper <-
         x <- filter SimplyProfiled (counted_cmp pivot) t;
-        qs0 (exist _ (proj1_sig x) (qs_obligation_2 SimplyProfiled (fun l H => qs0 (exist _ l H)) Heq_l lower x));
+        qs0 (exist _ (proj1_sig x) (qs_definitions.mon_det.qs_obligation_2 SimplyProfiled (fun l H => qs0 (exist _ l H)) Heq_l lower x));
       ret (m:=SimplyProfiled) (lower ++ pivot :: upper)
   end refl_equal.
 

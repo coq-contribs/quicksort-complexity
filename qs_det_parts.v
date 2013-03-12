@@ -36,11 +36,11 @@ Section contents.
        low <-
        qs0
          (exist (fun l' : list X => length l' < length l0)
-            (proj1_sig part Lt) (qs_obligation_1 M (fun l H => qs0 (exist _ l H)) Heq_l part));
+            (proj1_sig part Lt) (qs_definitions.mon_det_partition.qs_obligation_1 M (fun l H => qs0 (exist _ l H)) Heq_l part));
        upp <-
        qs0
          (exist (fun l' : list X => length l' < length l0)
-            (proj1_sig part Gt) (qs_obligation_2 M (fun l H => qs0 (exist _ l H)) Heq_l part low));
+            (proj1_sig part Gt) (qs_definitions.mon_det_partition.qs_obligation_2 M (fun l H => qs0 (exist _ l H)) Heq_l part low));
        ret (low ++ h :: proj1_sig part Eq ++ upp)
    end refl_equal.
 
