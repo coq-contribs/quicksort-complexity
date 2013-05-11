@@ -25,15 +25,11 @@ Definition cmp_cmp (x y: comparison): { x = y } + { x <> y } :=
   | Lt, Lt | Gt, Gt | Eq, Eq => left _ (refl_equal _)
   | a, b => right _ (
       match a, b
-      return (fun _ => match a, b with Lt, Lt | Gt, Gt | Eq, Eq => True | _, _ => ~(a = b) end) _ with
-        (* removing the silly abstraction breaks the definitions.. curious *)
+      return match a, b with Lt, Lt | Gt, Gt | Eq, Eq => True | _, _ => ~(a = b) end with
       | Lt, Lt | Gt, Gt | Eq, Eq => I
-      | Lt, _ => fun q =>
-        match q in _ = t return match t with Lt => True | _ => False end with refl_equal => I end
-      | Gt, _ => fun q =>
-        match q in _ = t return match t with Gt => True | _ => False end with refl_equal => I end
-      | Eq, _ => fun q =>
-        match q in _ = t return match t with Eq => True | _ => False end with refl_equal => I end
+      | Lt, _ => fun q => match q in _ = Lt with refl_equal => I end
+      | Gt, _ => fun q => match q in _ = Gt with refl_equal => I end
+      | Eq, _ => fun q => match q in _ = Eq with refl_equal => I end
       end
     )
   end. (* todo: derive this using the new equality Schemes *)
