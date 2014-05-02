@@ -1,4 +1,3 @@
-
 Set Implicit Arguments.
 
 Require Export List.
@@ -150,7 +149,7 @@ Proof.
 Qed.
 
 Instance Permutation_NoDup {X}: Proper (Permutation ==> iff) (@NoDup X).
-Proof with firstorder.
+Proof with firstorder auto.
   pose proof NoDup_cons.
   intros ? ? E.
   induction E; [firstorder | | | firstorder].
@@ -175,7 +174,7 @@ Proof with auto.
   induction P; intros; simpl...
       rewrite IHP.
       rewrite E...
-    repeat rewrite E.
+    repeat rewrite E. rewrite E at 3.
     destruct (p' y); destruct (p' x)...
   rewrite IHP1.
   rewrite <- H...

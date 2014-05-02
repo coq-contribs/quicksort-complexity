@@ -214,7 +214,7 @@ Section contents.
 End contents.
 
 Theorem qs_avg_complexity (ee: E):
-  over length, expec cost ∘ @NDP.qs ee =O(fun n => INR (n * log2ceil n)).
+  over (@length (_:Set)), expec cost ∘ @NDP.qs ee =O(fun n => INR (n * log2ceil n)).
 Proof with auto with real.
   unfold NDP.qs.
   unfold measured_bigO.

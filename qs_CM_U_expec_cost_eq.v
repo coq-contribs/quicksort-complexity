@@ -41,8 +41,8 @@ Section contents.
   Qed.
 
   Theorem qs_CM_U_map_cost_eq (l: list (Index ee ol)):
-    ne_tree.map fst (NDP.qs ee (map (@subscript ee ol) l))
-    = ne_tree.map (length ∘ fst) (U.qs l).
+    ne_tree.map (fst (A:=_:Set)(B:=_:Set)) (NDP.qs ee (map (@subscript ee ol) l))
+    = ne_tree.map (@length (_:Set) ∘ (@fst (_:Set) (_:Set))) (U.qs l).
   Proof with auto.
     unfold NDP.qs, U.qs.
     pattern l, (qs (@U.cmp ee ol) U.pick l).
@@ -122,7 +122,7 @@ Section contents.
     intros.
     f_equal.
     rewrite <- (ne_tree.map_map (@fst NatAddMonoid (list ee)) Raxioms.INR).
-    rewrite (qs_CM_U_map_cost_eq tl).
+    rewrite (qs_CM_U_map_cost_eq tl). 
     rewrite ne_tree.map_map...
   Qed.
 

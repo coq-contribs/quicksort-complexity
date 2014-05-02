@@ -501,7 +501,7 @@ Proof with auto with real.
   apply C_log_bound.
 Qed.
 
-Corollary qs_avg_bigO: over length, Ravg ∘ map (INR ∘ cost ∘ qs) ∘ perms =O(fun n => n * log2ceil n).
+Corollary qs_avg_bigO: over (@length (_ : Set)), Ravg ∘ map (INR ∘ cost ∘ qs) ∘ perms =O(fun n => n * log2ceil n).
 Proof with auto with real.
   unfold measured_bigO.
   exists 2.

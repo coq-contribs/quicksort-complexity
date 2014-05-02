@@ -1,4 +1,3 @@
-
 Set Implicit Arguments.
 
 Require Import List.
@@ -29,7 +28,7 @@ Section contents.
   Qed.
 
   Lemma counts_0_expec_length_0 t:
-    (forall i, expec (count (beq_X i)) t = 0) -> expec length t = 0.
+    (forall i, expec (count (beq_X i)) t = 0) -> expec (@length (_:Set)) t = 0.
   Proof with auto.
     intros.
     replace 0 with (INR 0)...
@@ -43,7 +42,7 @@ Section contents.
   Lemma exp_list_sum_le (fr: X -> R) (q: list X) (t: ne_tree.T (list X)):
     (forall i, In i q -> expec (count (beq_X i)) t <= fr i) ->
     (forall i, ~ In i q -> expec (count (beq_X i)) t = 0) ->
-    expec length t <= Rsum (map fr q).
+    expec (@length (_:Set)) t <= Rsum (map fr q).
   Proof with auto with real.
     induction q in t |- *.
       simpl.
@@ -51,14 +50,14 @@ Section contents.
       rewrite counts_0_expec_length_0...
     simpl.
     intros.
-    rewrite (@expec_ext _ length (fun x => plus (count (beq_X a) x) (count (negb ∘ beq_X a) x)) ).
+    rewrite (@expec_ext _ (@length (_:Set)) (fun x => plus (count (beq_X a) x) (count (negb ∘ beq_X a) x)) ).
       Focus 2.
       intro.
       apply length_excl_counts.
     rewrite expec_plus.
     apply Rle_trans with (fr a + expec (count (fun t0: X => negb (beq_X a t0))) t)...
     apply Rplus_le_compat_l.
-    apply Rle_trans with (expec length (ne_tree.map (filter (fun x: X => negb (beq_X a x))) t)).
+    apply Rle_trans with (expec (@length (_:Set)) (ne_tree.map (filter (fun x: X => negb (beq_X a x))) t)).
       rewrite expec_map.
       apply expec_le.
       intros.

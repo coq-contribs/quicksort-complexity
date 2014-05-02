@@ -23,12 +23,12 @@ Section contents.
 
   Definition monoid_expec {A: Set}:
     MonoidMonadTrans.M m ne_tree_monad.ext A -> R
-      := expec (ms ∘ fst).
+      := expec (ms ∘ (fst (B:=_:Set))).
 
   Lemma monoid_expec_bind_leaf (X Y: Set) (f: X -> MonoidMonadTrans.M m ne_tree_monad.ext Y)
     (n: prod m X):
     monoid_expec (@bind (MonoidMonadTrans.M m ne_tree_monad.ext) _ _ (ne_tree.Leaf n) f) =
-    expec (ms ∘ monoid_mult m (fst n) ∘ fst) (f (snd n)).
+    expec (ms ∘ monoid_mult m (fst n) ∘ (fst (B:=_:Set))) (f (snd n)).
   Proof.
     intros.
     unfold monoid_expec.
