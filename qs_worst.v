@@ -6,6 +6,7 @@ Require Import List.
 Require Import Le.
 Require Import Lt.
 Require Import Arith.
+Require Import Omega.
 Require Import util.
 Require Import arith_lems.
 Require Import List.

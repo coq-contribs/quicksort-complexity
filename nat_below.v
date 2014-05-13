@@ -4,7 +4,7 @@ Set Implicit Arguments.
 Require Import Arith.
 Require Compare_dec.
 Require EqNat.
-Require Omega.
+Require Import Omega.
 
 Fixpoint cond_eq (T: nat -> Set) n m {struct n}: forall c, T (c + n) -> T (c + m) -> Prop :=
   match n, m return forall c, T (c + n) -> T (c + m) -> Prop with

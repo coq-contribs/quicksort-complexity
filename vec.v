@@ -13,6 +13,7 @@ Require Import arith_lems.
 Require Vector.
 Require Import Relations.
 Require List.
+Require Import Omega.
 
 Implicit Arguments Vector.cons [A n].
 Implicit Arguments Vector.nil [A].

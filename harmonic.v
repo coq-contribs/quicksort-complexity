@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 
 Require Import
-  Reals Fourier
+  Reals Fourier Omega
   sums_and_averages nat_seqs arith_lems util list_utils nat_below.
 
 Lemma upper_bound n: RsumOver (nats 1 n) (Rinv ∘ INR) <= INR (S (log2ceil n)).

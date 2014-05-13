@@ -3,7 +3,7 @@ Set Implicit Arguments.
 
 Require Import
   Plus List Permutation Arith Relations RelationClasses Morphisms
-  arith_lems util list_utils nat_seqs.
+  arith_lems util list_utils nat_seqs Omega.
 
 (* sum *)
 

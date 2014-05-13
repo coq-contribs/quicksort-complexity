@@ -6,6 +6,7 @@ Require Import Plus.
 Require Import Minus.
 Require Import Lt.
 Require Import Arith.
+Require Import Omega.
 Require Vector.
 Require Import arith_lems.
 Require Import List.

@@ -7,7 +7,7 @@ Require Import Rbase.
 Require Import Plus.
 Require Import Mult.
 Require Import Arith.
-Require Omega.
+Require Import Omega.
 Require Import Div2.
 Require Import Recdef.
 Require Import Rbase.

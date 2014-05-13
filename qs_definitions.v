@@ -17,7 +17,7 @@ Require Coq.Program.Wf.
 Require Import Wf_nat.
 Require Import arith_lems.
 Require ne_list.
-Require Omega.
+Require Import Omega.
 Require fix_measure_utils.
 
 (*Extraction Language Haskell.*)
