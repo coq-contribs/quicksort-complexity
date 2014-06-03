@@ -1,4 +1,5 @@
 Set Implicit Arguments.
+Unset Standard Proposition Elimination Names.
 
 Require Import
   Basics List Plus Program Morphisms Wf Wf_nat Omega
