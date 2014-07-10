@@ -200,31 +200,19 @@ Hint Resolve sqrd_plus sqrd_le.
 
 (* div2 properties *)
 
-Functional Scheme div2_ind := Induction for div2 Sort Prop.
-
-Lemma div2S_le_Sdiv2 x: div2 (S x) <= S (div2 x).
-Proof with auto with arith.
-  functional induction (div2 x)...
-  simpl.
-  destruct n'...
+Lemma div2_preserves_le x y: x <= y -> div2 x <= div2 y.
+Proof.
+  rewrite !Nat.div2_div. now apply Nat.div_le_mono.
 Qed.
 
 Lemma Sdiv2_eq_div2SS x: S (div2 x) = div2 (S (S x)).
-Proof. induction x; auto with arith. Qed.
+Proof. reflexivity. Qed.
 
-Lemma div2_preserves_le x y: x <= y -> div2 x <= div2 y.
+Lemma div2S_le_Sdiv2 x: div2 (S x) <= S (div2 x).
 Proof with auto with arith.
-  revert y.
-  functional induction (div2 x)...
-  intros.
-  destruct y.
-    inversion_clear H.
-  cset (le_S_n _ _ H).
-  destruct y.
-    inversion H0.
-  simpl.
-  apply le_n_S.
-  apply IHn...
+  destruct x...
+  rewrite <- Sdiv2_eq_div2SS.
+  apply -> Nat.succ_le_mono. apply div2_preserves_le...
 Qed.
 
 Lemma div2_x_plus_Sx b: div2 (b + S b) = b.
@@ -237,16 +225,8 @@ Proof with auto with arith.
 Qed.
 
 Lemma div2_x_plus_2y a b: div2 (a + 2 * b) = div2 a + b.
-Proof with auto with arith.
-  revert b.
-  functional induction (div2 a); intros.
-      apply div2_double.
-    destruct b...
-    simpl.
-    rewrite <- plus_n_O.
-    rewrite div2_x_plus_Sx...
-  simpl in *.
-  rewrite IHn...
+Proof.
+  rewrite !Nat.div2_div, Nat.mul_comm. now apply Nat.div_add.
 Qed.
 
 Lemma div2_sqrdSn n: div2 (sqrd n) + n <= div2 (sqrd (S n)).
@@ -260,25 +240,22 @@ Proof with auto with arith.
 Qed.
 
 Lemma le_div2 n: div2 n <= n.
-Proof. pattern n, (div2 n). apply div2_ind; auto with arith. Qed.
+Proof. apply Nat.div2_decr; auto with arith. Qed.
+
+Lemma div2_lt_inv0 x y: div2 x < div2 y -> x < y.
+Proof.
+  rewrite !Nat.lt_nge. intros H H'. contradict H. now apply div2_preserves_le.
+Qed.
 
 Lemma div2_lt_inv x y: div2 x < div2 y -> x <= y.
-Proof with auto with arith.
-  revert y.
-  functional induction (div2 x); intros...
-    destruct y...
-  destruct y. inversion H.
-  destruct y. inversion H.
-  do 2 apply le_n_S...
+Proof.
+  intros. now apply Nat.lt_le_incl, div2_lt_inv0.
 Qed.
 
 Lemma div2_le_div2_inv x y: div2 x <= div2 y -> x <= S y.
 Proof with auto with arith.
-  revert y.
-  functional induction (div2 x); intros...
-  destruct y. inversion H.
-  destruct y. inversion H.
-  apply le_n_S...
+ destruct x as [|[|x]]...
+ simpl. intros H. apply div2_lt_inv0 in H...
 Qed.
 
 Lemma div2_cancel n: div2 (2 * n) = n.
