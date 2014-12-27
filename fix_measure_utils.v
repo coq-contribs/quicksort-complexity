@@ -6,6 +6,7 @@ Require Import Lt.
 Require Import Arith.
 Require Import Recdef.
 Require Coq.Program.Wf.
+Require List.
 
 Section measure_wf.
 
@@ -131,7 +132,7 @@ End Fix_measure_rects.
 
 Module Example.
 
-  Require Import List.
+  Import List.
 
   Definition tail (l: list nat): list nat :=
     match l with
