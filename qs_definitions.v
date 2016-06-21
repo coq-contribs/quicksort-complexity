@@ -22,6 +22,8 @@ Require fix_measure_utils.
 
 (*Extraction Language Haskell.*)
 
+Set Shrink Obligations.
+
 Definition numbers: list nat := 3 :: 1 :: 0 :: 4 :: 5 :: 2 :: nil.
 
 Hint Resolve length_filter_le.
@@ -229,7 +231,7 @@ Section mon_det. (* For variable discharging. *)
           qs0 (exist _ (proj1_sig x) (qs_obligation_1 (fun l H => qs0 (exist _ l H)) Heq_l x));
         upper <-
           x <- filter (le pivot) t;
-          qs0 (exist _ (proj1_sig x) (qs_obligation_2 (fun l H => qs0 (exist _ l H)) Heq_l lower x));
+          qs0 (exist _ (proj1_sig x) (qs_obligation_2 (fun l H => qs0 (exist _ l H)) Heq_l x));
         ret (m:=M) (lower ++ pivot :: upper)
     end refl_equal.
 
@@ -453,6 +455,6 @@ Module nonmonadic_using_Function.
     end.
   Proof with simpl; auto with arith. intros... intros... Defined.
 
-  (*Eval compute in qs numbers.*)
+  (* Eval compute in qs numbers. *)
 
 End nonmonadic_using_Function.

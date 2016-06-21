@@ -4,6 +4,8 @@ Require Import
   List
   util monads list_utils qs_definitions.
 
+Set Shrink Obligations.
+
 Import qs_definitions.mon_det_partition.
 
 Section contents.
@@ -40,7 +42,7 @@ Section contents.
        upp <-
        qs0
          (exist (fun l' : list X => length l' < length l0)
-            (proj1_sig part Gt) (qs_definitions.mon_det_partition.qs_obligation_2 M (fun l H => qs0 (exist _ l H)) Heq_l part low));
+            (proj1_sig part Gt) (qs_definitions.mon_det_partition.qs_obligation_2 M (fun l H => qs0 (exist _ l H)) Heq_l part));
        ret (low ++ h :: proj1_sig part Eq ++ upp)
    end refl_equal.
 

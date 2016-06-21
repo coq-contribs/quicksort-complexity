@@ -16,6 +16,7 @@ Require Import qs_definitions.
 Import mon_det.
 Require fix_measure_utils.
 
+Set Shrink Obligations.
 
 Variables (T: Set) (cmp: T -> T -> bool). (* "le" *)
 
@@ -92,7 +93,7 @@ Definition qs_body (l: list T) (qs0: {l': list T | length l' < length l} -> Simp
         qs0 (exist _ (proj1_sig x) (qs_definitions.mon_det.qs_obligation_1 SimplyProfiled (fun l H => qs0 (exist _ l H)) Heq_l x));
       upper <-
         x <- filter SimplyProfiled (counted_cmp pivot) t;
-        qs0 (exist _ (proj1_sig x) (qs_definitions.mon_det.qs_obligation_2 SimplyProfiled (fun l H => qs0 (exist _ l H)) Heq_l lower x));
+        qs0 (exist _ (proj1_sig x) (qs_definitions.mon_det.qs_obligation_2 SimplyProfiled (fun l H => qs0 (exist _ l H)) Heq_l x));
       ret (m:=SimplyProfiled) (lower ++ pivot :: upper)
   end refl_equal.
 
