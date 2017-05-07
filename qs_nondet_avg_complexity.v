@@ -231,7 +231,7 @@ Proof with auto with real.
   rewrite Rmult_plus_distr_l.
   rewrite Rmult_1_r.
   rewrite (Rmult_assoc 3).
-  replace 3 with (2+1)...
+  replace 3 with (2+1) by ring.
   rewrite (Rmult_plus_distr_r 2 1).
   rewrite Rmult_1_l.
   rewrite Rmult_assoc.
