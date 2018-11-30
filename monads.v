@@ -22,8 +22,8 @@ Record Monad: Type :=
 
   (* Todo: I vaguely recall someone mentioning that there was a way to use notation and/or implicit arguments inside a record definition. That would make the above a lot cleaner. *)
 
-Implicit Arguments bind [m a b].
-Implicit Arguments ret [[m] [a]].
+Arguments bind [m a b].
+Arguments ret {m} {a}.
 
 Notation "x >>= y" := (bind x y) (at level 55).
 Notation "x >> y" := (bind x (fun _ => y)) (at level 30, right associativity).
@@ -40,7 +40,7 @@ Record Functor: Type :=
         (* (f . g) . x = f . (g . x) *)
   }.
 
-Implicit Arguments func_map [f a b].
+Arguments func_map [f a b].
 
 Definition extMonad (M: Monad): Prop := forall (A B: Set) (f g: A -> M B), ext_eq f g -> forall x, bind x f = bind x g.
 
@@ -195,7 +195,7 @@ Section MonadToys.
 
 End MonadToys.
 
-Implicit Arguments liftM [A B M].
+Arguments liftM [A B] _ [M].
 
 Record MonadTrans: Type :=
   { transMonad: forall (m: Monad), extMonad m -> Monad

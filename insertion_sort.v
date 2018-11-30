@@ -176,7 +176,7 @@ Section monadic.
   Definition isort: list T -> M (list T) := foldlM insert nil.
 
   Hypothesis run: forall U, M U -> U.
-  Implicit Arguments run [U].
+  Arguments run [U].
   Hypothesis run_ret: forall (U: Set) (x: U), run (ret x) = x.
   Hypothesis run_bind: forall (A B: Set) (x: M A) (f: A -> M B),
     run (x >>= f) = run (f (run x)).

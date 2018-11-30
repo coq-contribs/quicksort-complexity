@@ -9,7 +9,7 @@ Require Import util.
 Require Import sums_and_averages.
 Require Import Rbase.
 
-Implicit Arguments length [[A]].
+Arguments length {A}.
 
 Section contents.
 
