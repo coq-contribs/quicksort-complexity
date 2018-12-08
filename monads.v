@@ -23,7 +23,7 @@ Record Monad: Type :=
   (* Todo: I vaguely recall someone mentioning that there was a way to use notation and/or implicit arguments inside a record definition. That would make the above a lot cleaner. *)
 
 Arguments bind [m a b].
-Arguments ret {m} {a}.
+Arguments ret {m a}.
 
 Notation "x >>= y" := (bind x y) (at level 55).
 Notation "x >> y" := (bind x (fun _ => y)) (at level 30, right associativity).
