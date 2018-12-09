@@ -15,10 +15,10 @@ Hint Constructors NoDup.
 Hint Constructors
   NoDup Permutation.
 
-Implicit Arguments length [[A]].
-Implicit Arguments Permutation [[A]].
-Implicit Arguments map [[A] [B]].
-Implicit Arguments tail [[A]].
+Arguments length {A}.
+Arguments Permutation {A}.
+Arguments map {A B}.
+Arguments tail {A}.
 
 Section count.
 
@@ -139,7 +139,7 @@ Qed.
 Lemma In_map_inv T U (f: T -> U) (l: list T) (y: U): In y (map f l) -> exists x, f x = y /\ In x l.
 Proof. induction l; firstorder. Qed.
 
-Implicit Arguments In_map_inv [T U f l y].
+Arguments In_map_inv [T U f l y].
 
 Instance In_Permutation A (x: A): Proper (Permutation ==> iff) (In x).
 Proof.
@@ -471,7 +471,7 @@ Proof with auto.
   right...
 Qed.
 
-Implicit Arguments InP_In_inv [X x ll].
+Arguments InP_In_inv [X x ll].
 
 Lemma NoDup_concat A (l: list (list A)): NoDupL l -> NoDup (concat l).
 Proof with auto.

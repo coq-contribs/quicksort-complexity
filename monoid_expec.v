@@ -13,7 +13,7 @@ Require Import list_utils.
 Require Import Rbase.
 Require ne_tree_monad.
 
-Implicit Arguments fst [[A] [B]].
+Arguments fst {A B}.
 
 Definition map_fst (A B C: Set) (f: A -> B) (p: A * C): B * C := (f (fst p), snd p).
 
