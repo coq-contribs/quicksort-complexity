@@ -1,0 +1,35 @@
+opam-version: "2.0"
+maintainer: "palmskog@gmail.com"
+
+homepage: "https://github.com/coq-contribs/quicksort-complexity"
+dev-repo: "git+https://github.com/coq-contribs/quicksort-complexity.git"
+bug-reports: "https://github.com/coq-contribs/quicksort-complexity/issues"
+license: "Unlicense"
+
+synopsis: "Proofs of Quicksort's worst- and average-case complexity in Coq"
+description: """
+The development contains:
+- a set of monads and monad transformers for measuring a (possibly nondeterministic) algorithm's use of designated operations;
+- monadically expressed deterministic and nondeterministic implementations of Quicksort;
+- proofs of these implementations' worst- and average case complexity.
+"""
+
+build: [make "-j%{jobs}%"]
+install: [make "install"]
+remove: ["rm" "-R" "%{lib}%/coq/user-contrib/QuicksortComplexity"]
+flags: light-uninstall
+depends: [
+  "ocaml"
+  "coq" {(>= "8.8" & < "8.10~") | (= "dev")}
+]
+
+tags: [
+  "category:Computer Science/Decision Procedures and Certified Algorithms/Correctness proofs of algorithms"
+  "keyword:quicksort"
+  "keyword:complexity"
+  "keyword:average-case"
+  "logpath:QuicksortComplexity"
+]
+authors: [
+  "Eelis van der Weegen"
+]
