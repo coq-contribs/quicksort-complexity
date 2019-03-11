@@ -1,5 +1,4 @@
 Set Implicit Arguments.
-Unset Automatic Introduction.
 
 Require Import List.
 Require Import Lt.
@@ -17,6 +16,7 @@ Fixpoint nats (b: nat) (w: nat) {struct w}: list nat :=
 
 Lemma nats_length (w b: nat): length (nats b w) = w.
 Proof with auto.
+  generalize w b; clear w b.
   induction w...
   simpl.
   intros.
@@ -25,6 +25,7 @@ Qed.
 
 Lemma In_nats (w x b: nat): b <= x -> x < b + w -> In x (nats b w).
 Proof with auto.
+  revert w x b.
   induction w; intros.
     elimtype False.
     rewrite plus_0_r in H0.
@@ -37,6 +38,7 @@ Qed.
 
 Lemma In_nats_inv (w x b: nat): In x (nats b w) -> b <= x < b + w.
 Proof with auto.
+  revert w x b.
   induction w; simpl; intros.
     inversion H.
   inversion H.
@@ -47,6 +49,7 @@ Qed.
 
 Lemma NoDup_nats (w b: nat): NoDup (nats b w).
 Proof with auto.
+  revert w b.
   induction w; simpl; intros.
     apply NoDup_nil.
   apply NoDup_cons...
@@ -57,6 +60,7 @@ Qed.
 
 Lemma nats_plus y x z: nats x (y + z) = nats x y ++ nats (y + x) z.
 Proof with auto.
+  revert y x z.
   induction y...
   intros.
   simpl.
@@ -80,6 +84,7 @@ Qed.
 
 Lemma nats_Sw' w b: nats b (S w) = nats b w ++ (w + b :: nil).
 Proof with auto.
+  revert w b.
   induction w...
   intros.
   rewrite nats_Sw.
@@ -107,6 +112,7 @@ Qed.
 
 Lemma nats_Sb w b: nats (S b) w = map S (nats b w).
 Proof with auto.
+  revert w b.
   induction w...
   simpl.
   intros.

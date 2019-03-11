@@ -1,7 +1,6 @@
 (* Intended for use without Import. *)
 
 Set Implicit Arguments.
-Unset Automatic Introduction.
 
 Require ne_list.
 Require Import Setoid.
@@ -42,8 +41,9 @@ Section contents.
 
   Definition T_rec (P: T -> Set) (Pleaf: forall n, P (Leaf n)) (Pone: forall t, P t -> P (Node (ne_list.one t))) (Pcons: forall t l, P t -> P (Node l) -> P (Node (ne_list.cons t l))): forall t, P t := T_rect P Pleaf Pone Pcons.
 
-  Definition alt_ind (P: T -> Prop) (Pleaf: forall n, P (Leaf n)) (Pnode: forall l:ne_list.L T, (forall t, List.In t l -> P t) -> P (Node l)) (t: T): P t .
+  Definition alt_ind (P: T -> Prop) (Pleaf: forall n, P (Leaf n)) (Pnode: forall l:ne_list.L T, (forall t, List.In t l -> P t) -> P (Node l)) (t: T): P t.
   Proof with auto.
+    revert P Pleaf Pnode t.
     intros P Hbase Hrcd.
     refine (fix IH (t:T) {struct t} : P t := _).
     destruct t.
@@ -120,7 +120,6 @@ Section contents.
   Lemma InL_map_inv (Q: Set) (e: E) (f: Q -> T) (l: ne_list.L Q):
     InL e (ne_list.map f l) -> exists e', In e (f e') /\ List.In e' l.
   Proof with auto.
-    intros Q e f.
     induction l.
       simpl.
       intros.
