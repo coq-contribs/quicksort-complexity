@@ -25,8 +25,8 @@ authors:
 opam-file-maintainer: palmskog@gmail.com
 
 license:
-  fullname: The Unlicense
-  identifier: Unlicense
+  fullname: Public Domain
+  identifier: Public Domain
 
 supported_coq_versions:
   text: Coq 8.8 or later (use releases for other Coq versions)

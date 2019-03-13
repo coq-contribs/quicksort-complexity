@@ -23,7 +23,7 @@ More details about the project can be found in the paper
 
 - Author(s):
   - Eelis van der Weegen (initial)
-- License: [The Unlicense](LICENSE)
+- License: [Public Domain](LICENSE)
 - Compatible Coq versions: Coq 8.8 or later (use releases for other Coq versions)
 - Additional dependencies: none
 

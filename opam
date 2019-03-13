@@ -4,7 +4,7 @@ maintainer: "palmskog@gmail.com"
 homepage: "https://github.com/coq-contribs/quicksort-complexity"
 dev-repo: "git+https://github.com/coq-contribs/quicksort-complexity.git"
 bug-reports: "https://github.com/coq-contribs/quicksort-complexity/issues"
-license: "Unlicense"
+license: "Public Domain"
 
 synopsis: "Proofs of Quicksort's worst- and average-case complexity in Coq"
 description: """
