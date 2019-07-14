@@ -25,12 +25,12 @@ More details about the project can be found in the paper
   - Eelis van der Weegen (initial)
 - License: [Public Domain](LICENSE)
 - Compatible Coq versions: Coq 8.8 or later (use releases for other Coq versions)
-- Additional dependencies: none
+- Additional Coq dependencies: none
 
 ## Building and installation instructions
 
-The easiest way to install the latest released version is via
-[OPAM](https://opam.ocaml.org/doc/Install.html):
+The easiest way to install the latest released version of QuicksortComplexity
+is via [OPAM](https://opam.ocaml.org/doc/Install.html):
 
 ```shell
 opam repo add coq-released https://coq.inria.fr/opam/released
@@ -48,5 +48,6 @@ make install
 
 After installation, the included modules are available under
 the `QuicksortComplexity` namespace.
+
 
 
