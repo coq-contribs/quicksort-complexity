@@ -64,7 +64,7 @@ Section contents.
 
   Lemma monoid_expec_Node_map (A B: Set) (f: A -> MonoidMonadTrans.M m ne_tree_monad.ext B) (l: ne_list.L A):
     monoid_expec (ne_tree.Node (ne_list.map f l)) =
-    monoid_expec_sum f l / INR (length l).
+    monoid_expec_sum f (ne_list.to_plain l) / INR (length (ne_list.to_plain l)).
   Proof with auto.
     unfold monoid_expec, monoid_expec_sum.
     intros.

@@ -35,7 +35,7 @@ Section nonmonadic.
 
   Definition gt (x y: T): bool := negb (le x y).
 
-  Program Fixpoint qs (l: list T) {measure (length l) on lt}: list T :=
+  Program Fixpoint qs (l: list T) {measure (length l) lt}: list T :=
     match l with
     | nil => nil
     | pivot :: t => qs (filter (gt pivot) t) ++ (pivot :: nil) ++ qs (filter (le pivot) t)
@@ -209,7 +209,7 @@ Section mon_det. (* For variable discharging. *)
     (* no good, firewall *)
   Abort.
 *)
-  Program Fixpoint qs (l: list T) {measure (length l) on lt}: M (list T) :=
+  Program Fixpoint qs (l: list T) {measure (length l) lt}: M (list T) :=
     match l with
     | nil => ret nil
     | pivot :: t =>
@@ -364,7 +364,7 @@ Section mon_det_partition.
         ret (addToPartitioning b h tt)
     end.
 
-  Program Fixpoint qs (l: list T) {measure (length l) on lt}: M (list T) :=
+  Program Fixpoint qs (l: list T) {measure (length l) lt}: M (list T) :=
     match l with
     | nil => ret nil
     | h :: t =>
@@ -398,20 +398,20 @@ Section mon_nondet.
 
   Variable pick: forall (A: Set), ne_list.L A -> M A.
 
-  Program Fixpoint qs (l: list T) {measure (length l) on lt}: M (list T) :=
+  Program Fixpoint qs (l: list T) {measure (length l) lt}: M (list T) :=
     match l with
     | nil => ret nil
     | h :: t =>
         i <- pick (ne_list.from_vec (vec.nats 0 (length (h :: t))));
-        part <- partition (vec.nth (h :: t) i) (vec.remove (h :: t) i);
+        part <- partition (vec.nth (vec.from_list (h :: t)) i) (vec.to_list (vec.remove (vec.from_list (h :: t)) i));
         low <- qs (part Lt);
         upp <- qs (part Gt);
-        ret (low ++ vec.nth (h :: t) i :: part Eq ++ upp)
+        ret (low ++ vec.nth (vec.from_list (h :: t)) i :: part Eq ++ upp)
     end.
 
   Next Obligation.
     simpl.
-    replace (length t) with (length (vec.remove (h :: t) i)).
+    replace (length t) with (length (vec.to_list (vec.remove (vec.from_list (h :: t)) i))).
       simpl.
       rewrite <- H.
       repeat rewrite app_length.
@@ -422,7 +422,7 @@ Section mon_nondet.
 
   Next Obligation.
     simpl.
-    replace (length t) with (length (vec.remove (h :: t) i)).
+    replace (length t) with (length (vec.to_list (vec.remove (vec.from_list (h :: t)) i))).
       simpl.
       rewrite <- H.
       repeat rewrite app_length.

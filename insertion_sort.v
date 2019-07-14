@@ -1,4 +1,3 @@
-
 Set Implicit Arguments.
 
 Require Import Bool.
@@ -66,7 +65,7 @@ Section plain.
     (le_yippee: forall x y, le x y = false -> le y x = true)
     (preorder_R: preorder _ R).
 
-  Lemma inserted_ordered x (l: list T): vec.sorted R l -> vec.sorted R (insert x l).
+  Lemma inserted_ordered x (l: list T): vec.sorted R (vec.from_list l) -> vec.sorted R (vec.from_list (insert x l)).
   Proof with auto.
     induction l.
       simpl.
@@ -104,13 +103,13 @@ Section plain.
 
   Hint Constructors vec.sorted.
 
-  Lemma isort_sorts l: vec.sorted R (isort l).
+  Lemma isort_sorts l: vec.sorted R (vec.from_list (isort l)).
   Proof with auto.
     induction l; simpl...
     apply inserted_ordered...
   Qed.
 
-  Lemma isort_sorts' (U: relation T): (forall x y, le x y = true -> U x y) -> forall l, vec.sorted U (isort l).
+  Lemma isort_sorts' (U: relation T): (forall x y, le x y = true -> U x y) -> forall l, vec.sorted U (vec.from_list (isort l)).
     intros.
     apply (vec_sorted_impl _ H).
     apply isort_sorts.

@@ -39,21 +39,21 @@ Section contents.
   Variable v: Vector.t (Index ee ol) (S n).
   Variable iltj: (i < j)%nat.
 
-  Let flt x0 cr := filter (fun f: Index ee ol => unsum_bool (cmp_cmp (Ecmp (UE ee ol) f (vec.nth v x0)) cr)) (vec.remove v x0).
+  Let flt x0 cr := filter (fun f: Index ee ol => unsum_bool (cmp_cmp (Ecmp (UE ee ol) f (vec.nth v x0)) cr)) (vec.to_list (vec.remove v x0)).
 
   Variable IH: forall (x0: natBelow (S n)) (cr: comparison) (b: nat),
     IndexSeq b (flt x0 cr) ->
     monoid_expec (U.ijcount i j) (qs (U.cmp (e:=ee) (ol:=ol)) U.pick (flt x0 cr)) <= 2 / INR (S (j - i)).
 
-  Variables (b: nat) (is: IndexSeq b v).
+  Variables (b: nat) (is: IndexSeq b (vec.to_list v)).
 
-  Lemma ndi: NoDup v.
+  Lemma ndi: NoDup (vec.to_list v).
     apply IndexSeq_NoDup with b.
     assumption.
   Qed.
 
-  Variable iin: In i v.
-  Variable jin: In j v.
+  Variable iin: In i (vec.to_list v).
+  Variable jin: In j (vec.to_list v).
   Variable pi: natBelow (S n).
 
   Lemma not_In_flt (k: Index ee ol) (dr: comparison) (H0: dr <> Ecmp (UE ee ol) k (vec.nth v pi)):
@@ -81,7 +81,7 @@ Section contents.
   Hint Immediate ndi_flt.
 
   Lemma partition_0: nb_val (vec.nth v pi) <> i -> nb_val (vec.nth v pi) <> j ->
-    U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.remove v pi)) = 0%nat.
+    U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.to_list (vec.remove v pi))) = 0%nat.
   Proof.
     intros.
     apply (U.ijcount_0).
@@ -120,7 +120,7 @@ Section contents.
   Qed.
 
   Lemma case_A: (vec.nth v pi < i)%nat ->
-    INR (U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.remove v pi))) +
+    INR (U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.to_list (vec.remove v pi)))) +
     monoid_expec (U.ijcount i j)
       (foo <- @U.qs ee ol (flt pi Lt);
       bar <- @U.qs ee ol (flt pi Gt);
@@ -162,14 +162,14 @@ Section contents.
       apply lt_trans with (vec.nth v pi)...
       apply (IndicesCorrect i (vec.nth v pi))...
     (* i in the Gt part. recursive sorting of upper part: *)
-    assert (IndexSeq b (vec.nth v pi :: vec.remove v pi)).
-      apply IndexSeq_perm with v...
+    assert (IndexSeq b (vec.nth v pi :: (vec.to_list (vec.remove v pi)))).
+      apply IndexSeq_perm with (vec.to_list v)...
       cset (vec.List_Permutation (vec.remove_perm pi v))...
-    apply (IH _ Gt (@InvIndexSeq_filterGt' ee ol (vec.nth v pi) (vec.remove v pi) b H1))...
+    apply (IH _ Gt (@InvIndexSeq_filterGt' ee ol (vec.nth v pi) (vec.to_list (vec.remove v pi)) b H1))...
   Qed.
 
   Lemma case_E: (j < vec.nth v pi)%nat ->
-    INR (U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.remove v pi))) +
+    INR (U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.to_list (vec.remove v pi)))) +
     monoid_expec (U.ijcount i j)
       (foo <- @U.qs ee ol (flt pi Lt);
       bar <- @U.qs ee ol (flt pi Gt);
@@ -221,12 +221,12 @@ Section contents.
       (* in the Lt part *)
       apply IH with b...
       unfold flt.
-      assert (length (vec.nth v pi :: vec.remove v pi) = S n).
+      assert (length (vec.nth v pi :: (vec.to_list (vec.remove v pi))) = S n).
         simpl @length. rewrite vec.length...
-      assert (IndexSeq b (vec.nth v pi :: vec.remove v pi)).
-        apply IndexSeq_perm with v...
+      assert (IndexSeq b (vec.nth v pi :: (vec.to_list (vec.remove v pi)))).
+        apply IndexSeq_perm with (vec.to_list v)...
         apply (vec.List_Permutation (vec.remove_perm pi v)).
-      cset (@IndexSeq_filterLt ee ol (vec.nth v pi) (S n) b (vec.nth v pi :: vec.remove v pi) H1 H2).
+      cset (@IndexSeq_filterLt ee ol (vec.nth v pi) (S n) b (vec.nth v pi :: (vec.to_list (vec.remove v pi))) H1 H2).
       simpl filter in H3.
       rewrite Ecmp_refl in H3...
     intros.
@@ -234,7 +234,7 @@ Section contents.
   Qed.
 
   Lemma case_C: (i < vec.nth v pi)%nat -> (vec.nth v pi < j)%nat ->
-    INR (U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.remove v pi))) +
+    INR (U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.to_list (vec.remove v pi)))) +
     monoid_expec (U.ijcount i j)
       (foo <- @U.qs ee ol (flt pi Lt);
       bar <- @U.qs ee ol (flt pi Gt);
@@ -270,7 +270,7 @@ Section contents.
   Qed.
 
   Lemma case_BD: (i = vec.nth v pi \/ j = vec.nth v pi) ->
-    INR (U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.remove v pi))) +
+    INR (U.ijcount i j (map (fun i0: Index ee ol => U.unordered_nat_pair i0 (vec.nth v pi)) (vec.to_list (vec.remove v pi)))) +
     monoid_expec (U.ijcount i j)
       (foo <- @U.qs ee ol (flt pi Lt);
       bar <- @U.qs ee ol (flt pi Gt);

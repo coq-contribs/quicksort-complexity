@@ -29,13 +29,13 @@ Section contents.
   Variables (X: Set) (pick: forall T: Set, ne_list.L T -> M T) (cmp: X -> X -> M comparison).
 
   Definition lowRecPart n (t: Vector.t X (S n)) (i: natBelow (S n)) (part: {p: Partitioning X |
-          Permutation.Permutation (p Eq ++ p Lt ++ p Gt) (vec.remove t i)}) :=
+          Permutation.Permutation (p Eq ++ p Lt ++ p Gt) (vec.to_list (vec.remove t i))}) :=
     low <- qs cmp pick (proj1_sig part Lt);
     upp <- qs cmp pick (proj1_sig part Gt);
     ret (low ++ vec.nth t i :: proj1_sig part Eq ++ upp).
 
   Definition partitionPart n (t: Vector.t X (S n)) (i: natBelow (S n))
-    := partition M cmp (vec.nth t i) (vec.remove t i) >>= lowRecPart t i.
+    := partition M cmp (vec.nth t i) (vec.to_list (vec.remove t i)) >>= lowRecPart t i.
 
   Definition selectPivotPart n (t: Vector.t X (S n)) := pick (ne_list.from_vec (vec.nats 0 (S n))) >>= partitionPart t.
 
@@ -62,10 +62,10 @@ Section contents.
     | nil => fun _ => ret nil
     | h :: t => fun e =>
       i <- pick (ne_list.from_vec (vec.nats 0 (length (h :: t))));
-      part <- partition M cmp (vec.nth (h :: t) i) (vec.remove (h :: t) i);
+      part <- partition M cmp (vec.nth (vec.from_list (h :: t)) i) (vec.to_list (vec.remove (vec.from_list (h :: t)) i));
       low <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Lt) (qs_definitions.mon_nondet.qs_obligation_1 M (fun l H => qs (exist _ l H)) e i part));
       upp <- qs (exist (fun l': list X => length l' < length l0) (proj1_sig part Gt) (qs_definitions.mon_nondet.qs_obligation_2 M (fun l H => qs (exist _ l H)) e i part));
-      ret (low ++ vec.nth (h :: t) i :: proj1_sig part Eq ++ upp)
+      ret (low ++ vec.nth (vec.from_list (h :: t)) i :: proj1_sig part Eq ++ upp)
     end refl_equal.
 
   Variable e: extMonad M.
@@ -85,14 +85,14 @@ Section contents.
   Qed.
 
   Lemma bodies x0:
-    raw_body x0 (fun y: {y: list X | length y < length x0} => qs (M:=M) cmp pick (proj1_sig y)) = body x0.
+    raw_body x0 (fun y: {y: list X | length y < length x0} => qs (M:=M) cmp pick (proj1_sig y)) = body (vec.from_list x0).
   Proof.
     intros.
     unfold raw_body, body, selectPivotPart, partitionPart, lowRecPart.
     destruct x0; reflexivity.
   Qed.
 
-  Lemma toBody (l: list X): qs cmp pick l = body l.
+  Lemma toBody (l: list X): qs cmp pick l = body (vec.from_list l).
   Proof with auto.
     unfold qs.
     fold raw_body.
@@ -116,7 +116,7 @@ Section contents.
 
   Lemma rect (Q: list X -> M (list X) -> Type):
     (Q nil (ret nil)) ->
-    (forall n (v: Vector.t X (S n)), (forall y, length y < S n -> Q y (qs cmp pick y)) -> Q v (selectPivotPart v)) ->
+    (forall n (v: Vector.t X (S n)), (forall y, length y < S n -> Q y (qs cmp pick y)) -> Q (vec.to_list v) (selectPivotPart v)) ->
       forall x, Q x (qs cmp pick x).
   Proof with auto.
     intros. 
@@ -150,7 +150,7 @@ Section contents.
 
   Lemma rect_using_lists (Q: list X -> M (list X) -> Type):
     (Q nil (ret nil)) ->
-    (forall h t, (forall y, length y <= length t -> Q y (qs cmp pick y)) -> Q (h::t) (selectPivotPart (h::t))) ->
+    (forall h t, (forall y, length y <= length t -> Q y (qs cmp pick y)) -> Q (h::t) (selectPivotPart (vec.from_list (h::t)))) ->
       forall x, Q x (qs cmp pick x).
   Proof with auto with arith.
     intros.
@@ -163,7 +163,7 @@ Section contents.
       intros.
       apply X2.
       rewrite vec.length in H...
-    pose proof (X1 (vec.head v) (vec.tail v) X3).
+    pose proof (X1 (vec.head v) (vec.to_list (vec.tail v)) X3).
     pose proof (selectPivotPart_eq (Vector.cons (vec.head v) (vec.from_list (vec.to_list (vec.tail v)))) (Vector.cons (vec.head v) (vec.tail v))).
     rewrite <- H...
     simpl.

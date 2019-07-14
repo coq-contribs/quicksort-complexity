@@ -1,4 +1,3 @@
-
 Set Implicit Arguments.
 Unset Standard Proposition Elimination Names.
 
@@ -90,16 +89,16 @@ Section contents.
     Hypothesis Pnil: P nil (ret nil).
 
     Hypothesis Pcons: forall n (v: Vector.t (Index e ol) (S n)),
-      (forall x0 cr, P (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) cr)) (vec.remove v x0)) (qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) cr)) (vec.remove v x0)))) ->
-      P v
+      (forall x0 cr, P (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) cr)) (vec.to_list (vec.remove v x0))) (qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) cr)) (vec.to_list (vec.remove v x0))))) ->
+      P (vec.to_list v)
       (ne_tree.Node
           (ne_list.map
             (fun x0: natBelow (S n) =>
               ne_tree.map
-                (map_fst (C:=list (Index e ol)) (app (map (fun i0: Index e ol => unordered_nat_pair i0 (vec.nth v x0)) (vec.remove v x0))))
-                (foo <- qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) Lt)) (vec.remove v x0));
-                bar <- qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) Gt)) (vec.remove v x0));
-                ret (foo ++ (vec.nth v x0 :: filter (fun f0: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f0 (vec.nth v x0)) Eq)) (vec.remove v x0)) ++ bar)))
+                (map_fst (C:=list (Index e ol)) (app (map (fun i0: Index e ol => unordered_nat_pair i0 (vec.nth v x0)) (vec.to_list (vec.remove v x0)))))
+                (foo <- qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) Lt)) (vec.to_list (vec.remove v x0)));
+                bar <- qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) Gt)) (vec.to_list (vec.remove v x0)));
+                ret (foo ++ (vec.nth v x0 :: filter (fun f0: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f0 (vec.nth v x0)) Eq)) (vec.to_list (vec.remove v x0))) ++ bar)))
             (ne_list.from_vec (vec.nats 0 (S n))))).
 
     Theorem qs_ind: forall l, P l (qs cmp pick l).
@@ -108,10 +107,10 @@ Section contents.
         apply Mext.
       intros.
       unfold qs_parts.body.
-      replace (qs_parts.selectPivotPart M pick cmp v) with (ne_tree.Node (ne_list.map (fun x0: natBelow (S n) => ne_tree.map (map_fst (app (map (fun i0: Index e ol => unordered_nat_pair i0 ((vec.nth v x0))) (vec.remove v x0)))) (
-      foo <- qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) Lt)) (vec.remove v x0));
-      bar <- qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) Gt)) (vec.remove v x0));
-      ret (m:=ne_tree_monad.M) (nil, foo ++ (vec.nth v x0 :: filter (fun f0: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f0 (vec.nth v x0)) Eq)) (vec.remove v x0)) ++ bar))) (ne_list.from_vec (vec.nats 0 (S n))))).
+      replace (qs_parts.selectPivotPart M pick cmp v) with (ne_tree.Node (ne_list.map (fun x0: natBelow (S n) => ne_tree.map (map_fst (app (map (fun i0: Index e ol => unordered_nat_pair i0 ((vec.nth v x0))) (vec.to_list (vec.remove v x0))))) (
+      foo <- qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) Lt)) (vec.to_list (vec.remove v x0)));
+      bar <- qs cmp pick (filter (fun f: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f (vec.nth v x0)) Gt)) (vec.to_list (vec.remove v x0)));
+      ret (m:=ne_tree_monad.M) (nil, foo ++ (vec.nth v x0 :: filter (fun f0: Index e ol => unsum_bool (cmp_cmp (Ecmp (UE e ol) f0 (vec.nth v x0)) Eq)) (vec.to_list (vec.remove v x0))) ++ bar))) (ne_list.from_vec (vec.nats 0 (S n))))).
         simpl @ret in Pcons.
         Focus 1.
         specialize (Pcons v).

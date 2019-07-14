@@ -26,7 +26,7 @@ Section expec_ctors.
   Lemma expec_Leaf t: expec f (ne_tree.Leaf t) = INR (f t).
   Proof. auto. Qed.
 
-  Lemma expec_Node l: expec f (ne_tree.Node l) = Ravg (ne_list.map (@expec _ f) l).
+  Lemma expec_Node l: expec f (ne_tree.Node l) = Ravg (ne_list.to_plain (ne_list.map (@expec _ f) l)).
   Proof. unfold expec, compose. intros. simpl. rewrite ne_list.map_map. reflexivity. Qed.
 
   Lemma expec_Node_one x:
@@ -35,7 +35,7 @@ Section expec_ctors.
 
   Lemma expec_Node_cons x t:
     expec f (ne_tree.Node (ne_list.cons x t)) =
-    (expec f x + expec f (ne_tree.Node t) * INR (length t)) * / INR (S (length t)).
+    (expec f x + expec f (ne_tree.Node t) * INR (length (ne_list.to_plain t))) * / INR (S (length (ne_list.to_plain t))).
   Proof.
     intros.
     rewrite expec_Node.
@@ -181,11 +181,11 @@ Proof with auto with real.
   inversion_clear H0.
   destruct (arith_lems.Rmult_0_inv H).
     assert (expec f t = 0).
-      apply Rplus_eq_0_l with (expec f (ne_tree.Node l) * INR (length l))...
+      apply Rplus_eq_0_l with (expec f (ne_tree.Node l) * INR (length (ne_list.to_plain l)))...
       apply Rmult_le_pos...
     assert (expec f (ne_tree.Node l) = 0).
       rewrite Rplus_comm in H0.
-      cut (expec f (ne_tree.Node l) * INR (length l) = 0).
+      cut (expec f (ne_tree.Node l) * INR (length (ne_list.to_plain l)) = 0).
         intro.
         destruct (arith_lems.Rmult_0_inv H3)...
         cset (arith_lems.INR_0_inv _ H4).
@@ -194,7 +194,7 @@ Proof with auto with real.
       apply Rmult_le_pos...
     inversion_clear H1...
   elimtype False.
-  apply (Rinv_neq_0_compat (INR (S (length l))))...
+  apply (Rinv_neq_0_compat (INR (S (length (ne_list.to_plain l)))))...
 Qed.
 
 Lemma expec_constant (T: Set) (f: T -> nat) (c: nat) (t: ne_tree_monad.M T):
@@ -235,7 +235,7 @@ Section bind_expecs.
 
   Lemma expec_bind_cons (x: ne_tree_monad.M U) t (g: U -> ne_tree_monad.M T):
     expec f (@bind ne_tree_monad.M _ _  (ne_tree.Node (ne_list.cons x t)) g) =
-    (expec f (x >>= g) + expec f (@bind ne_tree_monad.M _ _ (ne_tree.Node t) g) * INR (length t)) * / INR (S (length t)).
+    (expec f (x >>= g) + expec f (@bind ne_tree_monad.M _ _ (ne_tree.Node t) g) * INR (length (ne_list.to_plain t))) * / INR (S (length (ne_list.to_plain t))).
   Proof.
     intros.
     simpl expec.

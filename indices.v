@@ -1,4 +1,3 @@
-
 Set Implicit Arguments.
 
 Require Import util.
@@ -30,7 +29,7 @@ Section contents.
 
   Definition Index := natBelow (length ol).
 
-  Definition subscript: Index -> T := vec.nth (vec.insertion_sort (@Ele T) (@Ele_le_dec T) ol).
+  Definition subscript: Index -> T := vec.nth (vec.insertion_sort (@Ele T) (@Ele_le_dec T) (vec.from_list ol)).
 
   Definition UE: E :=
     Build_E (fun x y: Index => Ecmp T (subscript x) (subscript y))
@@ -50,7 +49,7 @@ Section contents.
     unfold UE. simpl.
     unfold subscript.
     intros.
-    apply (vec.sorted_lt_values_lt_indices (@EO T) (vec.insertion_sort_sorts (@Ele T) (@Ele_le_dec T) ol)).
+    apply (vec.sorted_lt_values_lt_indices (@EO T) (vec.insertion_sort_sorts (@Ele T) (@Ele_le_dec T) (vec.from_list ol))).
     unfold vec.Xlt.
     unfold Ele in *.
     rewrite H.
@@ -119,7 +118,7 @@ Section contents.
     apply (le_Sn_n x)...
   Qed.
 
-  Lemma vec_IndexSeq_nats_perm b n (v: Vector.t Index n): IndexSeq b v ->
+  Lemma vec_IndexSeq_nats_perm b n (v: Vector.t Index n): IndexSeq b (vec.to_list v) ->
     vec.Permutation (vec.map nb_val v) (vec.nb_nats b n).
   Proof with auto.
     unfold vec.nb_nats.
@@ -143,7 +142,7 @@ Section contents.
   Qed.
 
   Lemma nats_Permutation_IndexSeq' b n (l: Vector.t Index n):
-    vec.Permutation (vec.map nb_val l) (vec.nb_nats b n) -> IndexSeq b l.
+    vec.Permutation (vec.map nb_val l) (vec.nb_nats b n) -> IndexSeq b (vec.to_list l).
   Proof with auto.
     intros.
     unfold IndexSeq.
@@ -164,7 +163,7 @@ Section contents.
     intro.
     apply (NoDup_map_inv' (@nb_val (length ol))).
     rewrite vec.List_map.
-    assert (Permutation.Permutation (vec.map nb_val H) (vec.to_list (vec.nb_nats b (length l)))).
+    assert (Permutation.Permutation (vec.to_list (vec.map nb_val H)) (vec.to_list (vec.nb_nats b (length l)))).
       apply vec.List_Permutation, vec_IndexSeq_nats_perm...
     rewrite H1.
     unfold vec.nb_nats.
@@ -183,7 +182,7 @@ Section contents.
     assert (In (nb_val t) (map nb_val (vec.to_list H))).
       apply in_map...
     rewrite vec.List_map in H2.
-    assert (In (nb_val t) (vec.nb_nats b (length l))).
+    assert (In (nb_val t) (vec.to_list (vec.nb_nats b (length l)))).
       apply Permutation.Permutation_in with (vec.to_list (vec.map (nb_val (n:=length ol)) H))...
       apply vec.List_Permutation.
       apply (vec_IndexSeq_nats_perm H H0).
@@ -227,7 +226,7 @@ Section contents.
   Lemma indices: exists tl, ol = map subscript tl /\ IndexSeq 0 tl.
   Proof with auto.
     intros.
-    destruct (vec.Permutation_mapping (vec.perm_sym (vec.insertion_sort_permutes (@Ele T) (@Ele_le_dec T) ol))).
+    destruct (vec.Permutation_mapping (vec.perm_sym (vec.insertion_sort_permutes (@Ele T) (@Ele_le_dec T) (vec.from_list ol)))).
     destruct H.
     exists (vec.to_list x).
     split.

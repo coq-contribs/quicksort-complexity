@@ -83,9 +83,9 @@ Section contents.
       apply zero_le_2_div_Sn.
     intros.
     clear l.
-    destruct (Index_In_dec i v).
+    destruct (Index_In_dec i (vec.to_list v)).
       Focus 2. rewrite H1... apply zero_le_2_div_Sn.
-    destruct (Index_In_dec j v).
+    destruct (Index_In_dec j (vec.to_list v)).
       Focus 2. rewrite H1... apply zero_le_2_div_Sn.
     clear H1.
     rename H2 into H1.

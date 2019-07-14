@@ -8,22 +8,23 @@ Import qs_definitions.mon_nondet.
 Require ne_tree_monad.
 Require Import Plus.
 Require Import monoid_tree_monad.
+Require Import sort_order.
 
 Section contents.
 
-  Variable E: sort_order.E.
+  Variable X : E.
 
   Definition M: Monad := MonoidMonadTrans.M NatAddMonoid ne_tree_monad.ext.
 
-  Definition cmp (x y: E): M comparison :=
-    @ret ne_tree_monad.M _ (1%nat, sort_order.Ecmp E x y).
+  Definition cmp (x y : X) : M comparison :=
+    @ret ne_tree_monad.M _ (1%nat, sort_order.Ecmp X x y).
 
   Definition pick := monoid_tree_monad.pick NatAddMonoid.
 
   Lemma Mext: extMonad M.
   Proof MonoidMonadTrans.Mext NatAddMonoid ne_tree_monad.ext.
 
-  Lemma partition d l: partition M cmp d l = ne_tree.Leaf (length l, qs_definitions.simplerPartition E d l).
+  Lemma partition d l: partition M cmp d l = ne_tree.Leaf (length l, qs_definitions.simplerPartition X d l).
   Proof with auto.
     induction l...
     simpl.

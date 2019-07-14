@@ -1,4 +1,3 @@
-
 Set Implicit Arguments.
 
 Require Import Le.
@@ -140,7 +139,7 @@ Module Example.
     | _ :: t => t
     end.
 
-  Program Fixpoint bla (l: list nat) {measure (length l) on lt}: nat :=
+  Program Fixpoint bla (l: list nat) {measure (length l) lt}: nat :=
     match l with
     | nil => 3
     | _ => bla (tail l) + 2

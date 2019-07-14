@@ -3,7 +3,7 @@ Unset Standard Proposition Elimination Names.
 
 Require Import
   Basics List Plus Program Morphisms Wf Wf_nat Omega
-  qs_definitions monoid_monad_trans util list_utils sort_order nat_seqs
+  qs_definitions monads monoid_monad_trans util list_utils sort_order nat_seqs
   insertion_sort arith_lems.
 Require qs_det_parts.
 

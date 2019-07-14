@@ -92,12 +92,12 @@ Section contents.
     simpl.
     rewrite app_nil_r.
     intros.
-    assert (forall k cr, IndexIn k (filter (fun f: Index ee ol => unsum_bool (cmp_cmp (Ecmp ee (subscript f) (subscript (vec.nth v x))) cr)) (vec.remove v x)) -> IndexIn k v).
+    assert (forall k cr, IndexIn k (filter (fun f: Index ee ol => unsum_bool (cmp_cmp (Ecmp ee (subscript f) (subscript (vec.nth v x))) cr)) (vec.to_list (vec.remove v x))) -> IndexIn k (vec.to_list v)).
       intros.
       unfold IndexIn in *.
       apply (incl_In _ H4).
       apply incl_map.
-      apply incl_trans with (vec.remove v x)...
+      apply incl_trans with (vec.to_list (vec.remove v x))...
       apply SkipList_incl.
       apply vec.SkipList_remove.
     destruct (in_app_or _ _ _ H0).
@@ -158,18 +158,18 @@ Section contents.
     simpl.
     rewrite app_nil_r.
     intros.
-    assert (forall cr, NoDup (filter (fun f: Index ee ol => unsum_bool (cmp_cmp (Ecmp ee (subscript f) (subscript (vec.nth v x))) cr)) (vec.remove v x))).
+    assert (forall cr, NoDup (filter (fun f: Index ee ol => unsum_bool (cmp_cmp (Ecmp ee (subscript f) (subscript (vec.nth v x))) cr)) (vec.to_list (vec.remove v x)))).
       intros.
-      apply NoDup_SkipList with v...
-      apply SkipList_trans with (vec.remove v x).
+      apply NoDup_SkipList with (vec.to_list v)...
+      apply SkipList_trans with (vec.to_list (vec.remove v x)).
         apply SkipList_filter.
       apply vec.SkipList_remove.
-    assert (forall k cr, IndexIn k (filter (fun f: Index ee ol => unsum_bool (cmp_cmp (Ecmp ee (subscript f) (subscript (vec.nth v x))) cr)) (vec.remove v x)) -> IndexIn k v).
+    assert (forall k cr, IndexIn k (filter (fun f: Index ee ol => unsum_bool (cmp_cmp (Ecmp ee (subscript f) (subscript (vec.nth v x))) cr)) (vec.to_list (vec.remove v x))) -> IndexIn k (vec.to_list v)).
       intros.
       unfold IndexIn in *.
       apply (incl_In _ H6).
       apply incl_map.
-      apply incl_trans with (vec.remove v x)...
+      apply incl_trans with (vec.to_list (vec.remove v x))...
       apply SkipList_incl.
       apply vec.SkipList_remove.
     destruct (in_app_or _ _ _ H0).

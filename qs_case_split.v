@@ -45,14 +45,14 @@ Section contents.
     rewrite H...
   Qed.
 
-  Lemma case_split b: forall i j (X: Set) (f: U.monoid * X -> nat) n (vex: Vector.t (Index ee ol) (S n)) (g: natBelow (S n) -> MonoidMonadTrans.M U.monoid ne_tree_monad.ext X), IndexSeq b vex -> (b <= i)%nat -> (i < j)%nat -> (j < b + S n)%nat -> forall ca cb, 0 <= ca -> 0 <= cb ->
+  Lemma case_split b: forall i j (X: Set) (f: U.monoid * X -> nat) n (vex: Vector.t (Index ee ol) (S n)) (g: natBelow (S n) -> MonoidMonadTrans.M U.monoid ne_tree_monad.ext X), IndexSeq b (vec.to_list vex) -> (b <= i)%nat -> (i < j)%nat -> (j < b + S n)%nat -> forall ca cb, 0 <= ca -> 0 <= cb ->
     (forall pi, (vec.nth vex pi < i)%nat -> expec f (g pi) <= ca) ->
     (forall pi, (nb_val (vec.nth vex pi) = i)%nat -> expec f (g pi) <= cb) ->
     (forall pi, (i < vec.nth vex pi)%nat ->
                 (vec.nth vex pi < j)%nat -> expec f (g pi) = 0) ->
     (forall pi, (nb_val (vec.nth vex pi) = j)%nat -> expec f (g pi) <= cb) ->
     (forall pi, (j < vec.nth vex pi)%nat -> expec f (g pi) <= ca) ->
-      Rsum (map (expec f ∘ g) (ne_list.from_vec (vec.nats 0 (S n))))
+      Rsum (map (expec f ∘ g) (ne_list.to_plain (ne_list.from_vec (vec.nats 0 (S n)))))
         <= ca * INR (i - b) + (cb + (0 + (cb + (ca * INR(b + n - j))))).
   Proof with auto with real.
     intros.
@@ -60,8 +60,8 @@ Section contents.
     destruct (vec.Permutation_mapping (vec.perm_sym (vec_IndexSeq_nats_perm vex H))).
     destruct H11.
     unfold compose.
-    replace (Rsum (map (fun x1 : natBelow (S n) => expec f (g x1)) (ne_list.from_vec (vec.nats 0 (S n)))))
-     with (Rsum (map (fun x1 : natBelow (S n) => expec f (g x1)) x)).
+    replace (Rsum (map (fun x1 : natBelow (S n) => expec f (g x1)) (ne_list.to_plain (ne_list.from_vec (vec.nats 0 (S n))))))
+     with (Rsum (map (fun x1 : natBelow (S n) => expec f (g x1)) (vec.to_list x))).
       Focus 2.
       apply Rsum_Permutation.
       apply Permutation.Permutation_sym.
@@ -139,7 +139,7 @@ Section contents.
       destruct (In_map_inv H15). clear H15.
       destruct H17.
       subst x.
-      assert (In (nb_val (vec.nth vex x0)) (vec.map (nb_val (n:=length ol) ∘ vec.nth vex) H12)).
+      assert (In (nb_val (vec.nth vex x0)) (vec.to_list (vec.map (nb_val (n:=length ol) ∘ vec.nth vex) H12))).
         rewrite <- vec.List_map.
         replace (nb_val (vec.nth vex x0)) with ((nb_val (n:=length ol) ∘ vec.nth vex) x0)...
       rewrite H11 in H15.
@@ -166,7 +166,7 @@ Section contents.
       destruct H15.
       subst x.
       apply H9.
-      assert (In (nb_val (vec.nth vex x0)) (vec.map (nb_val (n:=length ol) ∘ vec.nth vex) H11)).
+      assert (In (nb_val (vec.nth vex x0)) (vec.to_list (vec.map (nb_val (n:=length ol) ∘ vec.nth vex) H11))).
         rewrite <- vec.List_map.
         replace (nb_val (vec.nth vex x0)) with ((nb_val ∘ vec.nth vex) x0)...
       rewrite H12 in H14.
