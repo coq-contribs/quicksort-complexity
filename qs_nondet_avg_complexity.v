@@ -126,7 +126,7 @@ Require Import sort_order.
 
 Import qs_definitions.mon_nondet.
 
-Implicit Arguments length [[A]].
+Arguments length {A}.
 
 Section contents.
 

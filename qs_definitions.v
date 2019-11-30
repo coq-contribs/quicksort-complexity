@@ -306,7 +306,7 @@ Section mon_det. (* For variable discharging. *)
 End mon_det.
 End mon_det.
 
-Implicit Arguments mon_det.qs [M T].
+Arguments mon_det.qs [M T].
 
 Lemma mon_det_nonmonadic_eq (X: Set) (Xle: X -> X -> Prop) (leb: X -> X -> IdMonad.M bool):
     forall l, mon_det.qs leb l = nonmonadic.qs leb l.
@@ -442,7 +442,7 @@ Fixpoint simplerPartition (e: E) (d: e) (l: list e) {struct l}: { p: Partitionin
   | h :: t => addToPartitioning (Ecmp e h d) _ (simplerPartition e d t)
   end. (* todo: rename *)
 
-Implicit Arguments mon_nondet.qs [M T].
+Arguments mon_nondet.qs [T M].
 
 (*Eval vm_compute in (@mon_nondet.qs IdMonad.M _ nat_cmp ne_list.head numbers).*)
 

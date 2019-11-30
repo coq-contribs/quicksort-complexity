@@ -1,5 +1,4 @@
 Set Implicit Arguments.
-Unset Standard Proposition Elimination Names.
 
 Require Import util.
 Require Import Le.
@@ -419,6 +418,7 @@ Proof. intros. apply lt_INR_0. auto with arith. Qed.
 
 Hint Resolve O_lt_INR_S.
 
+Require Import Lra.
 Require Import Fourier.
 
 (* R misc *)
@@ -438,7 +438,7 @@ Lemma Rmult_eq_compat_r (r r1 r2: R): (r1 = r2 -> r1 * r = r2 * r)%R.
 Proof. intros. subst. reflexivity. Qed.
 
 Lemma Rle_eq_trans x y z: (x <= y -> y = z -> x <= z)%R.
-Proof. intros. fourier. Qed.
+Proof. intros. lra. Qed.
 
 Lemma Req_ne_dec (x y: R): { x = y } + { x <> y }.
 Proof with auto.
@@ -488,7 +488,7 @@ Proof with auto with real.
   rewrite <- (Rinv_r m)...
     apply Rmult_lt_compat_r...
     apply Rinv_0_lt_compat...
-    fourier.
+    lra.
   intro.
   subst.
   apply (Rlt_not_le _ _ H0 H).

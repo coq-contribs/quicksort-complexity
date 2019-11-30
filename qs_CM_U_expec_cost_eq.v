@@ -21,8 +21,8 @@ Require Import nat_below.
 Require Import Bvector.
 Require vec.
 
-Implicit Arguments length [[A]].
-Implicit Arguments fst [[A] [B]].
+Arguments length {A}.
+Arguments fst {A B}.
 
 Section contents.
 

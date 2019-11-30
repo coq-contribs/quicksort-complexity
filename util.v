@@ -5,8 +5,8 @@ Require Import Relations.
 Require Export Basics.
 Require Import Setoid.
 
-Implicit Arguments eq [[A]].
-Implicit Arguments fst [[A] [B]].
+Arguments eq {A}.
+Arguments fst {A B}.
 
 Hint Unfold compose.
 

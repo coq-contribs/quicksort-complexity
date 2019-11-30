@@ -58,7 +58,6 @@ Section contents.
     rewrite H.
     simpl.
     firstorder.
-    intro. discriminate.
   Qed.
 
   Lemma IndicesCorrect_inv (x y: Index): x < y -> @Ele UE x y.

@@ -1,6 +1,5 @@
 Global Set Automatic Coercions Import.
 Set Implicit Arguments.
-Unset Standard Proposition Elimination Names.
 
 (* Intended for use without Import. *)
 
@@ -16,8 +15,8 @@ Require Import Relations.
 Require List.
 Require Import Omega.
 
-Implicit Arguments Vector.cons [A n].
-Implicit Arguments Vector.nil [A].
+Arguments Vector.cons [A] _ [n].
+Arguments Vector.nil [A].
 
 
 (* eliminators/inversion *)

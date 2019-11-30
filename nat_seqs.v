@@ -1,5 +1,4 @@
 Set Implicit Arguments.
-Unset Automatic Introduction.
 
 Require Import List.
 Require Import Lt.
@@ -17,7 +16,7 @@ Fixpoint nats (b: nat) (w: nat) {struct w}: list nat :=
 
 Lemma nats_length (w b: nat): length (nats b w) = w.
 Proof with auto.
-  induction w...
+  induction w in b |- * ...
   simpl.
   intros.
   rewrite IHw...
@@ -25,8 +24,8 @@ Qed.
 
 Lemma In_nats (w x b: nat): b <= x -> x < b + w -> In x (nats b w).
 Proof with auto.
-  induction w; intros.
-    elimtype False.
+  induction w in x, b |- *; intros H H0.
+    exfalso.
     rewrite plus_0_r in H0.
     apply (lt_not_le x b H0)...
   simpl.
@@ -37,7 +36,7 @@ Qed.
 
 Lemma In_nats_inv (w x b: nat): In x (nats b w) -> b <= x < b + w.
 Proof with auto.
-  induction w; simpl; intros.
+  induction w in x, b |- *; simpl; intros.
     inversion H.
   inversion H.
     omega.
@@ -47,7 +46,7 @@ Qed.
 
 Lemma NoDup_nats (w b: nat): NoDup (nats b w).
 Proof with auto.
-  induction w; simpl; intros.
+  induction w in b |- *; simpl; intros.
     apply NoDup_nil.
   apply NoDup_cons...
   intro.
@@ -57,7 +56,7 @@ Qed.
 
 Lemma nats_plus y x z: nats x (y + z) = nats x y ++ nats (y + x) z.
 Proof with auto.
-  induction y...
+  induction y in x, z |- *...
   intros.
   simpl.
   rewrite IHy.
@@ -80,7 +79,7 @@ Qed.
 
 Lemma nats_Sw' w b: nats b (S w) = nats b w ++ (w + b :: nil).
 Proof with auto.
-  induction w...
+  induction w in b |- *...
   intros.
   rewrite nats_Sw.
   rewrite IHw.
@@ -107,7 +106,7 @@ Qed.
 
 Lemma nats_Sb w b: nats (S b) w = map S (nats b w).
 Proof with auto.
-  induction w...
+  induction w in b |- *...
   simpl.
   intros.
   rewrite IHw...

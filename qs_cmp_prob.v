@@ -1,5 +1,4 @@
 Set Implicit Arguments.
-Unset Standard Proposition Elimination Names.
 
 Require Import util.
 Require Import Le.
