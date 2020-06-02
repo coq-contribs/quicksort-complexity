@@ -20,7 +20,7 @@ Definition map_fst (A B C: Set) (f: A -> B) (p: A * C): B * C := (f (fst p), snd
 Section contents.
 
   Variables (m: Monoid) (ms: m -> nat).
-
+About MonoidMonadTrans.M .
   Definition monoid_expec {A: Set}:
     MonoidMonadTrans.M m ne_tree_monad.ext A -> R
       := expec (ms ∘ (fst (B:=_:Set))).

@@ -1,5 +1,4 @@
 Set Implicit Arguments.
-Unset Standard Proposition Elimination Names.
 
 Require Export List.
 
@@ -1231,7 +1230,7 @@ Section splits_and_perms.
     rewrite map_map.
     rewrite map_app.
     rewrite (map_ext (fun x0 : list T => merges (y :: y') (x :: x0)) (fun x0 : list T => map (cons y) (merges y' (x :: x0)) ++ map (cons x) (merges (y :: y') x0))).
-      Focus 2.
+      all: swap 1 2.
       intros.
       rewrite merges_real_eq...
     apply Permutation_sym.
@@ -1354,7 +1353,7 @@ Section splits_and_perms.
     simpl in H3.
     destruct H3.
       rewrite H1 in H3.
-        Focus 2. left...
+        all:swap 1 2. left...
       rewrite <- (map_map (filter p) (cons x0)) in H3.
       apply in_map_iff in H3.
       destruct H3.
@@ -1364,7 +1363,7 @@ Section splits_and_perms.
       apply H...
       intuition.
     rewrite H2 in H3.
-      Focus 2. left...
+      all:swap 1 2. left...
     apply H0...
     intuition.
   Qed.

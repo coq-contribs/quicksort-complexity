@@ -1,6 +1,5 @@
 Global Set Automatic Coercions Import.
 Set Implicit Arguments.
-Unset Standard Proposition Elimination Names.
 
 (* Intended for use without Import. *)
 
